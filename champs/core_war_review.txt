@@ -1,0 +1,27 @@
+Or do soemthing like that: First of all, there will be some function that will check the possible char in the line. It knows that after first word can only be spaces, tabs, colon and smth else. Not commas, dots or other chars.
+If so, we can threw error even before we would like to validate line. Something like, simple validation before complex one.
+
+It seems that reading whole file at once isn't such a bad idea, as we would know on which line error is, as the whole file will be two-dimensional array.
+
+
+Firstly, lexical errors go on, logical and syntax move after lexical correction.
+Error flow:
+Lexical -> Syntax -> Logical(errors layers movement)
+
+Logical error types: Wrong type of argument, can not dereference label ":%label_name"
+Syntax error: 
+Lexical error types: .name and .comment have '' instead of "", 
+Logical error types: wrong type of arguments, length of general info(name, comment) is greater than given
+
+Если гнл встречает невалидную строку он просто перестает читать дальше(.name ""(во второй раз где-то между командами), r2, 1, ld etc) в случае если неправильные строки вынесены на отдельные строки, если же они просто часть команды ничего не происходит мы читаем дальше, просто потом обрабатываем это всё нашим error flow.
+
+First of all we handle name and comment(in seperate functions), and if they present we go futher
+
+
+Possible line content:
+- command_name
+- label_name -> all chars and symbols except numbers (we stop reading if we find number)
+- comments (2 types, see op.h for reference)
+- 
+
+if numbers, .name, .comment
