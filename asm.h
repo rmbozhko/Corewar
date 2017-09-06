@@ -39,6 +39,8 @@ typedef		struct 	s_valid
 {
 	char		**file;
 	int			line_num;
+	int			left_offset;
+	int			errors;
 }					t_valid;
 
 #endif
