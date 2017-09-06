@@ -34,6 +34,45 @@ void		ft_lexical_err(int line_num, int char_index, t_valid *valid)
 	// exit(0);
 }
 
+
+char		**realoc_n_copy(char **arr, size_t *len, size_t n, size_t memory_coef)
+{
+	char		**temp;
+	size_t		i;
+
+	i = 0;
+	*len += memory_coef;
+	temp = (char**)malloc((len) * sizeof(char*));
+	while (i < n)
+	{
+		temp[i] = ft_strdup(arr[i]);
+		i++;
+	}
+	ft_free_bidarr(arr, ft_bidlen(arr));
+	return (temp);
+}
+
+char 		**ft_read_file(const int fd)
+{
+	char 		**arr;
+	size_t		i;
+	size_t		len;
+	char		*line;
+
+	len = 10;
+	arr = (char**)malloc(sizeof(char*) * len); // we have done something with it, and will also implement into lem_in
+	i = 0;
+	line = ft_strnew(0);
+	while (get_next_line(fd, &line, ft_strnew(0)) > 0)
+	{
+		(i == len) ? arr = ft_realoc_and_copy(arr, &len, &i, 5) : 0;
+		arr[i++] = ft_strdup(line);
+	}
+	arr[i] = NULL;
+	return (arr);
+}
+
+/*
 char 		**ft_read_file(const int fd)
 {
 	char 		**arr;
@@ -48,6 +87,7 @@ char 		**ft_read_file(const int fd)
 	arr[i] = NULL;
 	return (arr);
 }
+*/
 
 int 		ft_spaces_based_line(char *str)
 {
