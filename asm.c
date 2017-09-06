@@ -23,13 +23,14 @@ t_op    op_tab[17] =
 	{0, 0, {0}, 0, 0, 0, 0, 0}
 };
 
-void		ft_lexical_err(int line_num, int char_index)
+void		ft_lexical_err(int line_num, int char_index, t_valid *valid)
 {
 	ft_putstr("Lexical error at [");
 	ft_putnbr(line_num + 1); // line number
 	ft_putstr(":");
-	ft_putnbr(char_index + 2); // index of char in line 
+	ft_putnbr(valid->left_offset + char_index + 2); // index of char in line + num of spaces omitted by ft_lstrip function
 	ft_putstr("]\n");
+	valid->errors += 1;
 	// exit(0);
 }
 
@@ -39,7 +40,7 @@ char 		**ft_read_file(const int fd)
 	size_t		i;
 	char		*line;
 
-	arr = (char**)malloc(sizeof(char*) * 1000000000000);
+	arr = (char**)malloc(sizeof(char*) * 1000000000000); // we have to do something with it, as it is also used in lem_in
 	i = 0;
 	line = ft_strnew(0);
 	while (get_next_line(fd, &line, ft_strnew(0)) > 0)
@@ -93,7 +94,7 @@ int 		ft_name_cmmt(char *line, int flag, t_valid *valid)
 		{
 			if (!ft_strchr(LABEL_CHARS, str[i]) && str[i] != ' ' && str[i] != '\t' && str[i] != '\n')
 			{
-				ft_lexical_err(valid->line_num, i);
+				ft_lexical_err(valid->line_num, i, valid);
 				break ; // Lexical error case
 			}
 			i++;
@@ -113,7 +114,7 @@ int 		ft_handle_dot(char *str, t_valid* valid)
 		ft_name_cmmt(str, 0, valid);
 	}
 	else
-		ft_lexical_err(valid->line_num, 1); // Lexical error return -> .extend || .nam || .comme
+		ft_lexical_err(valid->line_num, 1, valid); // Lexical error return -> .extend || .nam || .comme
 }
 
 int 		ft_handle_label(char *str, t_valid* valid)
@@ -127,14 +128,14 @@ int 		ft_handle_label(char *str, t_valid* valid)
 		if (!ft_strchr(LABEL_CHARS, str[i]))
 		{
 			printf("OLOL\n");
-			ft_lexical_err(valid->line_num, i);// Lexical error
+			ft_lexical_err(valid->line_num, i, valid);// Lexical error
 		}
 		i++;
 	}
 	if (i == 0)
 	{
 		printf("HAHAHAHAH\n");
-		ft_lexical_err(valid->line_num, i);
+		ft_lexical_err(valid->line_num, i, valid);
 		// no chars before semicolon -> lexical error
  	}
 }
@@ -145,6 +146,8 @@ int 		ft_lexical_validation(t_valid* valid)
 
 	while (valid->file[valid->line_num])
 	{
+		valid->left_offset = ft_strlen(valid->file[valid->line_num]) - ft_strlen(temp); // used to show errors properly, but still be working with strings, which don't have spaces at the left side.
+												// you simply add left_offset to char indicator when it is lexical error
 		temp = ft_lstrip(valid->file[valid->line_num]);
 		if (temp[0] == '.')
 		{
@@ -154,7 +157,7 @@ int 		ft_lexical_validation(t_valid* valid)
 		else if (!ft_strchr(LABEL_CHARS, temp[0]) && temp[0] != COMMENT_CHAR && temp[0] != COMMENT_CHAR2)
 		{
 			printf("YO!\n");
-			ft_lexical_err(valid->line_num, 1); // Lexical Error
+			ft_lexical_err(valid->line_num, 1, valid); // Lexical Error
 			// printf("HERE!\n");
 		}
 		else if (ft_strchr(LABEL_CHARS, temp[0]) && temp[0])
@@ -170,12 +173,11 @@ int 		ft_lexical_validation(t_valid* valid)
 
 int			ft_validate(t_valid *valid)
 {
-	if (ft_lexical_validation(valid))
-	{
-		printf("Lexically validated!\n");
-		// if (ft_syntax_validation()) 
-	}
-	return (0);
+	ft_lexical_validation(valid);
+	(valid->errors == 0) ? /*Syntax validation*/ : 0;
+	(valid->errors == 0) ? /*Logical validation*/ : 0;
+	//This is done to make some free in the end of program, if any validation lvl will screw up
+	return ((valid->errors == 0) ? (1) : (0));
 }
 
 void		ft_manipulate(const int fd)
@@ -184,6 +186,7 @@ void		ft_manipulate(const int fd)
 
 	valid = (t_valid*)malloc(sizeof(t_valid*));
 	valid->line_num = 0;
+	valid->errors = 0;
 	valid->file = ft_read_file(fd);
 	if (ft_validate(valid))
 	{
