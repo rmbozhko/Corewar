@@ -43,4 +43,7 @@ typedef		struct 	s_valid
 	int			errors;
 }					t_valid;
 
+
+char 				**ft_read_file(const int fd);
+int 				ft_lexical_validation(t_valid* valid);
 #endif

@@ -9,7 +9,7 @@ char		*ft_rstrip(char *str)
 	i = ft_strlen(str) - 1;
 	while (str[i] == ' ' || str[i] == '\t')
 		i--;
-	if ((temp = ft_strsub(str, i, ft_strlen(str) - i)) == NULL)
+	if ((temp = ft_strsub(str, 0, ++i)) == NULL)
 		return (NULL);
 	return (temp);
 }

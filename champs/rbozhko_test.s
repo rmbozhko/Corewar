@@ -1,9 +1,6 @@
-#.
+		.name "HER
+										.comment" 
+.comment "'
 
-	.nam "asdjlasjdnoas"
-.comment      	  ""
-a :
-#.name "asdjlasjdnoas"
-#ld 1, r2
-#live %1
-#.extend
+#-12 #Should be lexical error
+				space 	 : live %1
