@@ -30,6 +30,10 @@ int			ft_is_numeric(char *str)
 			return (0);
 		i++;
 	}
+	// if ((sign == 1 && i > 1) || (i > 0 && sign == 0))
+		// return (1);
+	// else
+		// return (0);
 	if (sign == 1)
 	{
 		return ((i > 1) ? 1 : 0);

@@ -100,4 +100,5 @@ void			ft_free_bidarr(char **arr, size_t len);
 char 			*ft_lstrip(char *str);
 char			*ft_rstrip(char *str);
 char 			*ft_strip(char *str);
+char 			**ft_read_file(const int fd);
 #endif

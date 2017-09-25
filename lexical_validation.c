@@ -1,54 +1,6 @@
 #include "asm.h"
 #include "op.h"
 
-void		ft_lexical_err(int line_num, int char_index, t_valid *valid)
-{
-	ft_putstr("Lexical error at [");
-	ft_putnbr(line_num + 1); // line number
-	ft_putstr(":");
-	ft_putnbr(valid->left_offset + char_index + 1); // index of char in line + num of spaces omitted by ft_lstrip function
-	ft_putstr("]\n");
-	valid->errors += 1;
-	// exit(0);
-}
-
-char		**ft_realoc_n_copy(char **arr, size_t *len, size_t n, size_t memory_coef)
-{
-	char		**temp;
-	size_t		i;
-
-	i = 0;
-	*len += memory_coef;
-	temp = (char**)malloc((*len) * sizeof(char*));
-	while (i < n)
-	{
-		temp[i] = ft_strdup(arr[i]);
-		i++;
-	}
-	ft_free_bidarr(arr, ft_bidlen(arr));
-	return (temp);
-}
-
-char 		**ft_read_file(const int fd)
-{
-	char 		**arr;
-	size_t		i;
-	size_t		len;
-	char		*line;
-
-	len = 10;
-	arr = (char**)malloc(sizeof(char*) * len); // we have done something with it, and will also implement into lem_in
-	i = 0;
-	line = ft_strnew(0);
-	while (get_next_line(fd, &line, ft_strnew(0)) > 0)
-	{
-		(i == len) ? arr = ft_realoc_n_copy(arr, &len, i, 5) : 0;
-		arr[i++] = ft_strdup(line);
-	}
-	arr[i] = NULL;
-	return (arr);
-}
-
 int 		ft_spaces_based_line(char *str)
 {
 	size_t		i;
@@ -63,60 +15,69 @@ int 		ft_spaces_based_line(char *str)
 	return (1);
 }
 
-char		*ft_loop_over(char *str, char c, size_t *i, t_valid *valid)
+char 		*ft_handle_double_qoutes(size_t *index, t_valid *valid)
 {
 	char 		*temp;
+	size_t		i;
+	int 		db_quote_flag;
 
-	temp = ft_strnew(0);
+	db_quote_flag = 1;
+	temp = ft_strsub(valid->file[valid->line_num], *index + 1, ft_strlen(valid->file[valid->line_num]));
+	printf("temp_string:%s\n", temp);
 	while (valid->file[valid->line_num])
 	{
+		i = 0;
+		while (temp[i] && db_quote_flag)
+		{
+			db_quote_flag = (temp[i] == '"') ? 0 : db_quote_flag;
+			// if (temp[i] == COMMENT_CHAR || temp[i] == COMMENT_CHAR2)
+				// break ;
+			i++;
+		}
+		if (!db_quote_flag)
+			break ;
 		ft_memdel((void**)&temp);
-		temp = ft_strip(valid->file[valid->line_num]);
-		valid->left_offset = ft_strlen(valid->file[valid->line_num]) - ft_strlen(temp);
-		while (temp[*i] != c && temp[*i])
-			*i += 1;
-		if (temp[(*i)++] == c)
-			return (temp);
-		*i = 0;
 		valid->line_num++;
+		temp = (valid->file[valid->line_num]) ? ft_strdup(valid->file[valid->line_num]) : temp;
 	}
+	*index = (temp[i] == '\0') ? 0 : i - 1;
+	printf("INDEX:%zu\n", *index);
+	return ((temp[i] == '\0') ? NULL : temp);
 }
 
-int 		ft_name_cmmt(char *line, int flag, t_valid *valid)
+void 		ft_name_cmmt(char *line, int flag, t_valid *valid)
 {
-	char 		*temp;
 	char		*str;
 	size_t		i;
 
-	temp = ft_strip(line);
-	printf("TEMP:%s\n", temp);
-	str = ft_strsub(temp, 0, ft_strlen((flag) ? NAME_CMD_STRING : COMMENT_CMD_STRING));
+	str = ft_strsub(line, 0, ft_strlen((flag) ? NAME_CMD_STRING : COMMENT_CMD_STRING));
 	if (ft_strcmp(((flag) ? NAME_CMD_STRING : COMMENT_CMD_STRING), str) == 0)
 	{
 		i = ft_strlen((flag) ? NAME_CMD_STRING : COMMENT_CMD_STRING);
-		while (temp[i])
+		while (line[i])
 		{
-			if (temp[i] == '"')
+			if (line[i] == '"')
 			{
-				i += 1;
-				if ((temp = ft_loop_over(temp, '"', &i, valid)) == NULL)
+				if ((line = ft_handle_double_qoutes(&i, valid)) == NULL)
 					break ;
 			}
-			else if (temp[i] == COMMENT_CHAR || temp[i] == COMMENT_CHAR2)
+			else if (line[i] == COMMENT_CHAR || line[i] == COMMENT_CHAR2)
 				break ;
-			else if (!ft_strchr(LABEL_CHARS, temp[i]) && temp[i] != ' ' && temp[i] != '\t' && temp[i] != '\n')
+			else if (!ft_strchr(LABEL_CHARS, line[i]) && line[i] != ' ' && line[i] != '\t' && line[i] != '\n' && line[i] != SEPARATOR_CHAR)
 			{
 				ft_lexical_err(valid->line_num, i, valid);
-				break ;
 			}
 			i++;
 		}
 	}
-	// ft_memdel((void**)&temp);
-	//return ERROR
+	else
+	{
+		ft_lexical_err(valid->line_num, 0, valid);
+	}
+	ft_memdel((void**)&str);
 }
 
-int 		ft_handle_dot(char *str, t_valid* valid)
+void 		ft_handle_dot(char *str, t_valid* valid)
 {
 	if (ft_strstr(str, NAME_CMD_STRING))
 	{
@@ -127,70 +88,222 @@ int 		ft_handle_dot(char *str, t_valid* valid)
 		ft_name_cmmt(str, 0, valid);
 	}
 	else
-		ft_lexical_err(valid->line_num, 0, valid); // Lexical error return -> .extend || .nam || .comme
+		ft_lexical_err(valid->line_num, 0, valid);
 }
 
-int 		ft_handle_label(char *str, t_valid* valid)
+int			ft_is_command(char *str)
+{
+	int			i;
+	char 		*temp;
+	char 		*string;//
+
+	string = ft_lstrip(str); //
+	i = -1;
+	while (op_tab[++i].count_args != 0)
+	{
+		if (ft_strlen(string) >= ft_strlen(op_tab[i].command_name)) // str instead string
+			temp = ft_strsub(string, 0, ft_strlen(op_tab[i].command_name)); // str instead string
+		else
+			continue ;
+		if (ft_strcmp(temp, op_tab[i].command_name) == 0)
+		{
+			ft_memdel((void**)&string);
+			return (i);
+			// return (1);
+		}
+		ft_memdel((void**)&temp);
+	}
+	//(ft_isalpha(string[0])) ? /*Handle somehow*/ : 0;
+	// ft_memdel((void**)&string);
+	return (-1);
+	// return (0);
+}
+
+size_t		ft_check_label_chars(char *str, size_t end, size_t *index, t_valid *valid)
+{
+	size_t		i;
+
+	i = 0;
+	printf("%s | %zu | %zu\n",str, end, *index);
+	while (i < end && str[i])
+	{
+		if (str[i] == '"')
+		{
+			printf("%s | %zu | %zu\n",str + i, end, *index);
+			if ((str = ft_handle_double_qoutes(&i, valid)) == NULL)
+				break ;
+		}
+		else if (str[i] == COMMENT_CHAR2 || str[i] == COMMENT_CHAR)
+			break ;
+		else if (!ft_strchr(LABEL_CHARS, str[i]) && str[i] != SEPARATOR_CHAR && str[i] != ' ' && str[i] != '\t')
+		{
+			ft_lexical_err(valid->line_num, i, valid);
+		}
+		// printf("OLAOAOLALALA\n");
+		i++;
+	}
+	*index += (str[i] != '\0' && str[i] != COMMENT_CHAR2 && str[i] != COMMENT_CHAR) ? i : ft_strlen(str) - 1;
+	return (i);
+}
+
+void 		ft_handle_label_declaration(char *str, size_t *index, t_valid* valid)
 {
 	size_t		i;
 	size_t		distance;
 	char 		*temp;
 
-	i = 0;
-	//if (there is no LABEL_CHAR in string then we do not display lexical error as it is Syntax error -> Syntax error at token [TOKEN][008:009] ENDLINE)
-	if (ft_strchr(str, LABEL_CHAR))
+	temp = NULL;
+	distance = ft_strlen(str);
+	if (ft_strchr(str, LABEL_CHAR) && !(i = 0))
 	{
 		distance = ft_strchr(str, LABEL_CHAR) - str;
-		temp = ft_strsub(str, 0, distance);
-		distance = (ft_strchr(str, COMMENT_CHAR) || ft_strchr(str, COMMENT_CHAR2));
-		// printf("distance:%d\n", distance);
-		(distance == 1) ? printf("Exit lexical validation, as this case is Syntax Error\n"), exit(0) : 0;
-		ft_memdel((void**)&temp);
+		temp = ft_strsub(str, 0, distance + 1);
+	}
+	if (ft_strchr(temp, COMMENT_CHAR) || ft_strchr(temp, COMMENT_CHAR2) || ft_strchr(temp, LABEL_CHAR) == NULL)
+	{
+
+		*index += ft_check_label_chars(str, distance, index, valid);
+	}
+	else
+	{
 		while (str[i] && str[i] != LABEL_CHAR)
 		{
 			if (!ft_strchr(LABEL_CHARS, str[i]))
-			{
-				// printf("OLOL:%d\n", valid->left_offset);
-				ft_lexical_err(valid->line_num, i, valid);// Lexical error
-			}
+				((str[i] == SEPARATOR_CHAR || str[i] == ' ' || str[i] == '\t') && str[i + 1] != LABEL_CHAR) ? 0 : ft_lexical_err(valid->line_num, *index + i, valid);
 			i++;
 		}
-	 }
+		*index += i;
+		*index += (str[i] == '\0') ? 0 : 1;
+	}
+	(temp == NULL) ? 0 : ft_memdel((void**)&temp);
 }
 
-int 		ft_lexical_validation(t_valid* valid)
+void 		ft_handle_label_invocation(char *str, size_t *index, t_valid* valid)
+{
+	size_t		i;
+	
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == '"' && i != 0)
+		{
+			if ((str = ft_handle_double_qoutes(&i, valid)) == NULL)
+				break ;
+		}
+		else if ((str[i] == COMMENT_CHAR2 || str[i] == COMMENT_CHAR) && i != 0)
+			break ;
+		else if (!ft_strchr(LABEL_CHARS, str[i]))
+			((str[i] == SEPARATOR_CHAR || str[i] == ' ' || str[i] == '\t') && i != 0) ? 0 : ft_lexical_err(valid->line_num, *index + i, valid);
+		i++;
+	}
+	*index += (str[i] == '\0') ? i : ft_strlen(str) - 1;
+	(i == 0) ? ft_lexical_err(valid->line_num, *index, valid) : 0;
+}
+
+void		ft_handle_indirect(char *str, size_t *index, t_valid *valid)
+{
+	*index += ft_strlen(str);
+}
+
+void		ft_handle_command(int command_id, char *str, size_t *index, t_valid *valid)
 {
 	char 		*temp;
 	size_t		i;
 
+	i = ft_strlen(op_tab[command_id].command_name);
+	temp = ft_lstrip(str + i);
+	*index += ft_strlen(str) - ft_strlen(temp);
+}
+
+void		ft_check_str_chars(char *str, size_t i, t_valid *valid)
+{
+	int 		command_id;
+	char 		*temp;
+
+	temp = str;
+	str = ft_lstrip(str);
+	valid->left_offset += ft_strlen(temp) - ft_strlen(str);
+	ft_memdel((void**)&temp);
+	if (str[i] == COMMENT_CHAR || str[i] == COMMENT_CHAR2)
+		return ;
+	else if (str[i] == '"')
+	{
+		ft_handle_double_qoutes(&i, valid);
+		i += 2;
+	}
+	else if ((command_id = ft_is_command(str + i)) != -1)
+	{
+		ft_handle_command(command_id, str, &i, valid);
+	}
+	else if (str[i] == DIRECT_CHAR && str[i + 1] == LABEL_CHAR)
+	{
+		i += 2;
+		ft_handle_label_invocation(str + i, &i, valid);
+	}
+	else if (str[i] == LABEL_CHAR || ft_strchr(LABEL_CHARS, str[i]))
+	{
+		if (str[i] == LABEL_CHAR)
+		{
+			i += 1;
+			ft_handle_label_invocation(str + i, &i, valid);
+		}
+		else
+		{
+			ft_handle_label_declaration(str + i, &i, valid);
+		}
+	}
+	else if (str[i] == SEPARATOR_CHAR)
+	{
+		while (str[i] && str[i] == SEPARATOR_CHAR)
+			i++;
+	}
+	else if (str[i] == 'r' && ft_isdigit(str[i + 1]))
+	{
+		;//handle register
+	}
+	else if ((str[i] == '-' && ft_isdigit(str[i + 1])) || ft_isdigit(str[i]) || (str[i] == DIRECT_CHAR))
+	{
+		if (str[i] == DIRECT_CHAR && ((str[i + 1] == '-' && ft_isdigit(str[i + 2])) || ft_isdigit(str[i + 1])))
+		{
+			ft_handle_indirect(str + i, &i, valid);//check if further are digits
+		}
+		else if (str[i] == '-' && ft_isdigit(str[i + 1]))
+		{
+			i += 2;
+			ft_handle_indirect(str + i, &i, valid);//check if further are digits
+		}
+		else if (ft_isdigit(str[i]))
+			ft_handle_indirect(str + i, &i, valid);//check if further are digits
+		else
+			ft_lexical_err(valid->line_num, i, valid);
+	}
+	else
+	{
+		(str[i] != ' ' && str[i] != '\t') ? ft_lexical_err(valid->line_num, i, valid) : i++;
+	}
+	(str[i] != '\0' && (!valid->errors)) ? ft_check_str_chars(str, i, valid) : 0;
+}
+
+void		ft_lexical_validation(t_valid *valid)
+{
+	char 		*temp;
+
+	temp = ft_strnew(0);
 	while (valid->file[valid->line_num])
 	{
+		ft_memdel((void**)&temp);
 		temp = ft_lstrip(valid->file[valid->line_num]);
-		valid->left_offset = ft_strlen(valid->file[valid->line_num]) - ft_strlen(temp); // used to show errors properly, but still be working with strings, which don't have spaces at the left side.
-												// you simply add left_offset to char indicator when it is lexical error
-		if (temp[0] == '.')
+		valid->left_offset = ft_strlen(valid->file[valid->line_num]) - ft_strlen(temp);
+		if (temp[0] == NAME_CMD_STRING[0] || temp[0] == COMMENT_CMD_STRING[0])
 		{
-			printf("Dot CASE\n");
 			ft_handle_dot(temp, valid);
 		}
-		else if (!ft_strchr(LABEL_CHARS, temp[0]) && temp[0] != COMMENT_CHAR && temp[0] != COMMENT_CHAR2 && temp[0] != '"')
+		else if (temp[0] != COMMENT_CHAR && temp[0] != COMMENT_CHAR2 && !ft_spaces_based_line(temp))
 		{
-			i = 0;
-			while (temp[i])
-			{
-				if (!ft_strchr(LABEL_CHARS, temp[i]) && temp[i] != SEPARATOR_CHAR && temp[i] != ' ' && temp[i] != '\t' && temp[i] != '\n')
-					ft_lexical_err(valid->line_num, i, valid);
-				i++;
-			}
-		}
-		else if (ft_strchr(LABEL_CHARS, temp[0]) && temp[0])
-		{
-			printf("Label case\n");
-			ft_handle_label(temp, valid);
-			//	handle custom label-function
+			printf("GO HERE!\n");
+			ft_check_str_chars(temp, 0, valid);
 		}
 		valid->line_num++;
-		// ft_memdel((void**)&temp);
 	}
-	return (1);
+	ft_memdel((void**)&temp);
 }

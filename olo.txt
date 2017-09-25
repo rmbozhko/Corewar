@@ -1,0 +1,21 @@
+[0;36mLibft is compiled[0m
+[0;37mAsm validation is compiled[0m
+6ALOHA
+4.name "aka"9ALOHA
+0.comment "0ALOHA
+15"asdasd",%:ippo:Lexical error at [12:5]
+YO_MA_NIgga!4
+INDEX:4
+YO_MA_NIgga!11
+INDEX:11
+STR:"asdasd",%:ippo: | 0 | "
+YO_MA_NIgga!7
+INDEX:7
+Current_index:8,%:ippo:
+STR:"asdasd",%:ippo: | 8 | ,
+SEPARATOR_CHAR is here %
+STR:"asdasd",%:ippo: | 9 | %
+DIRECT_CHAR______________---------________________----------______LABEL_CHAR
+AND CURRENT ERROR IS - : | 4
+H________________E_______________R______________E!sd",%:ippo:
+ALREADY ADDED! | 11 | 5

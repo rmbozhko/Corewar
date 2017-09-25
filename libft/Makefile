@@ -31,6 +31,7 @@ SRC = ft_atoi.c ft_bzero.c ft_is_whitespace.c ft_isalnum.c ft_isalpha.c \
 	  ft_words_count.c ft_is_numeric.c ft_putbidstr.c ft_bidlen.c \
 	  ft_atoi_base.c ft_countdown.c ft_bid_findstr.c ft_create_bid_arr.c \
 	  ft_count_char.c ft_free_bidarr.c ft_lstrip.c ft_rstrip.c ft_strip.c \
+	  ft_read_file.c
 
 OBJ = $(SRC:.c=.o)
 

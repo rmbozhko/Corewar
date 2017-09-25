@@ -23,31 +23,23 @@ t_op    op_tab[17] =
 	{0, 0, {0}, 0, 0, 0, 0, 0}
 };
 
-int			ft_validate(t_valid *valid)
-{
-	ft_lexical_validation(valid);
-	(valid->errors == 0) ? printf("Syntax: 1\n")/*Syntax validation*/ : 0;
-	(valid->errors == 0) ? printf("Logical: 1\n")/*Logical validation*/ : 0;
-	//This is done to make some free in the end of program, if any validation lvl will screw up
-	return ((valid->errors == 0) ? (1) : (0));
-}
-
-void		ft_manipulate(const int fd)
+int			ft_validate(const int fd)
 {
 	t_valid		valid;
 
 	// valid = (t_valid*)malloc(sizeof(t_valid*));
 	valid.line_num = 0;
 	valid.errors = 0;
+	valid.name = 0;
+	valid.cmmt = 0;
 	valid.file = ft_read_file(fd);
-	if (ft_validate(&valid))
-	{
-		printf("GOOD!\n");
-	}
-	else
-	{
-		printf("BAD\n");
-	}
+	ft_lexical_validation(&valid);
+	valid.line_num = 0;
+	printf("Number of erros:%d\n", valid.errors);
+	(valid.errors == 0) ? ft_syntax_validation(&valid) : 0;
+	valid.line_num = 0;
+	(valid.errors == 0) ? printf("Logical: 1\n")/*Logical validation*/ : 0;
+	return ((valid.errors == 0) ? (1) : (0));
 }
 
 int			main(int argc, char const *argv[])
@@ -59,7 +51,7 @@ int			main(int argc, char const *argv[])
 		if (ft_strlen(argv[1]) > 0)
 		{
 			fd = open(argv[1], O_RDONLY);
-			(fd >= 0 && fd <= 4096) ? ft_manipulate(fd) : /*Handle case as an error*/0;
+			(fd >= 0 && fd <= 4096) ? ft_validate(fd) : /*Handle case as an error*/0;
 		}
 	}
 	else

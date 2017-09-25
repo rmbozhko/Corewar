@@ -1,6 +1,5 @@
-		.name "HER
-										.comment" 
-.comment "'
 
-#-12 #Should be lexical error
-				space 	 : live %1
+#blala
+.name "MEsio"
+.comment "Alak" #toto
+liv_e  %1

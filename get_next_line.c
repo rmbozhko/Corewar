@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "bonus.h"
+#include "asm.h"
 
 static	int		ft_no_nl_line(char *temp, char **line)
 {
@@ -67,7 +67,12 @@ int				get_next_line(const int fd, char **line, char *str)
 			if ((NL_CODE) || (!NL_CODE && ft_strlen(buff) == 0))
 				return (ft_rtn_line(temp, line));
 		}
-		else if (bytes == 0 || (bytes == 1 && buff[0] == '\n'))
+		else if (bytes == 1 && buff[0] == '\n')
+		{
+			*line = ft_strdup("\n");
+			return (1);
+		}
+		else if (bytes == 0)
 			break ;
 	}
 	ft_memdel((void**)&str);

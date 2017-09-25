@@ -9,7 +9,8 @@ Error flow:
 Lexical -> Syntax -> Logical(errors layers movement)
 
 Logical error types: Wrong type of argument, can not dereference label ":%label_name"
-Syntax error: 
+Syntax error:
+
 Lexical error types: .name and .comment have '' instead of "", 
 Logical error types: wrong type of arguments, length of general info(name, comment) is greater than given
 
@@ -25,3 +26,6 @@ Possible line content:
 - 
 
 if numbers, .name, .comment
+
+Syntax errors:
+	gen_info ->  -> new_line char at the end of the file -> -> 
