@@ -211,8 +211,8 @@ void		ft_handle_command(int command_id, char *str, size_t *index, t_valid *valid
 	size_t		i;
 
 	i = ft_strlen(op_tab[command_id].command_name);
-	temp = ft_lstrip(str + i);
-	*index += ft_strlen(str) - ft_strlen(temp);
+	//temp = ft_lstrip(str + i);
+	*index += i;//ft_strlen(str) - ft_strlen(temp);
 }
 
 void		ft_check_str_chars(char *str, size_t i, t_valid *valid)
@@ -225,7 +225,9 @@ void		ft_check_str_chars(char *str, size_t i, t_valid *valid)
 	valid->left_offset += ft_strlen(temp) - ft_strlen(str);
 	ft_memdel((void**)&temp);
 	if (str[i] == COMMENT_CHAR || str[i] == COMMENT_CHAR2)
-		return ;
+	{
+		return ; // i = ft_strlen(str); // this is done to stop parsing line further
+	}
 	else if (str[i] == '"')
 	{
 		ft_handle_double_qoutes(&i, valid);
