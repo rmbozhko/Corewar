@@ -1,5 +1,7 @@
 
 #blala
 .name "MEsio"
-.comment "Alak" #toto
-liv_e  %1
+.comment "Alak" #toto	
+label1#:
+	fork %:r1
+live"lol"%1

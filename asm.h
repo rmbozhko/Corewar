@@ -33,7 +33,7 @@ typedef		struct 	s_valid
 {
 	char		**file;
 	int			line_num;
-	int			left_offset;
+	size_t		i;
 	int			errors;
 	int			name;
 	int			cmmt;
@@ -43,6 +43,6 @@ typedef		struct 	s_valid
 char 				**ft_read_file(const int fd);
 void 				ft_lexical_validation(t_valid* valid);
 void 				ft_syntax_validation(t_valid* valid);
-void				ft_lexical_err(int line_num, int char_index, t_valid *valid);
-void				ft_check_str_chars(char *str, size_t i, t_valid *valid);
+void				ft_lexical_err(t_valid *valid);
+// void				ft_check_str_chars(char *str, size_t i, t_valid *valid);
 #endif
