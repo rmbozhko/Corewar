@@ -15,6 +15,28 @@ int 		ft_spaces_based_line(char *str)
 	return (1);
 }
 
+size_t		ft_skip_chars(char *str, int(*f)(int), int c)
+{
+	size_t		i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (c != -1 && f == NULL)
+		{
+			if (str[i] != c)
+				break ;
+		}
+		else if (c == -1 && f != NULL)
+		{
+			if (!f(str[i]))
+				break ;
+		}
+		i++;
+	}
+	return (i);
+}
+
 char 		*ft_handle_double_qoutes(size_t *index, t_valid *valid)
 {
 	char 		*temp;
@@ -40,55 +62,61 @@ char 		*ft_handle_double_qoutes(size_t *index, t_valid *valid)
 		valid->line_num++;
 		temp = (valid->file[valid->line_num]) ? ft_strdup(valid->file[valid->line_num]) : temp;
 	}
-	*index = (temp[i] == '\0') ? 0 : i - 1;
+	*index += i;//(temp[i] == '\0') ? ft_strlen() : i - 1;
 	printf("INDEX:%zu\n", *index);
 	return ((temp[i] == '\0') ? NULL : temp);
 }
 
-void 		ft_name_cmmt(char *line, int flag, t_valid *valid)
+size_t 		ft_name_cmmt(char *line, int flag, t_valid *valid)
 {
 	char		*str;
 	size_t		i;
 
 	str = ft_strsub(line, 0, ft_strlen((flag) ? NAME_CMD_STRING : COMMENT_CMD_STRING));
+	i = ft_strlen(str);
 	if (ft_strcmp(((flag) ? NAME_CMD_STRING : COMMENT_CMD_STRING), str) == 0)
 	{
 		i = ft_strlen((flag) ? NAME_CMD_STRING : COMMENT_CMD_STRING);
-		while (line[i])
-		{
-			if (line[i] == '"')
-			{
-				if ((line = ft_handle_double_qoutes(&i, valid)) == NULL)
-					break ;
-			}
-			else if (line[i] == COMMENT_CHAR || line[i] == COMMENT_CHAR2)
-				break ;
-			else if (!ft_strchr(LABEL_CHARS, line[i]) && line[i] != ' ' && line[i] != '\t' && line[i] != '\n' && line[i] != SEPARATOR_CHAR)
-			{
-				ft_lexical_err(valid->line_num, i, valid);
-			}
-			i++;
-		}
+		// printf("HERE!\n");
+		// while (line[i])
+		// {
+		// 	if (line[i] == '"')
+		// 	{
+		// 		if ((line = ft_handle_double_qoutes(&i, valid)) == NULL)
+		// 			break ;
+		// 	}
+		// 	else if (line[i] == COMMENT_CHAR || line[i] == COMMENT_CHAR2)
+		// 		break ;
+		// 	else if (!ft_strchr(LABEL_CHARS, line[i]) && line[i] != ' ' && line[i] != '\t' && line[i] != '\n' && line[i] != SEPARATOR_CHAR)
+		// 	{
+		// 		ft_lexical_err(valid->line_num, i, valid);
+		// 	}
+		// 	i++;
+		// }
 	}
 	else
-	{
 		ft_lexical_err(valid->line_num, 0, valid);
-	}
+	return (i);
 	ft_memdel((void**)&str);
 }
 
-void 		ft_handle_dot(char *str, t_valid* valid)
+size_t 		ft_handle_dot(char *str, t_valid* valid)
 {
+	size_t		i;
+
+	i = 1;
 	if (ft_strstr(str, NAME_CMD_STRING))
 	{
-		ft_name_cmmt(str, 1, valid);
+		i = ft_name_cmmt(str, 1, valid);
 	}
 	else if (ft_strstr(str, COMMENT_CMD_STRING))
 	{
-		ft_name_cmmt(str, 0, valid);
+		i = ft_name_cmmt(str, 0, valid);
 	}
 	else
 		ft_lexical_err(valid->line_num, 0, valid);
+	printf("INDEX OF THE STRING_________:%zu | %s\n", i, str + i);
+	return (i);
 }
 
 int			ft_is_command(char *str)
@@ -161,7 +189,6 @@ void 		ft_handle_label_declaration(char *str, size_t *index, t_valid* valid)
 	}
 	if (ft_strchr(temp, COMMENT_CHAR) || ft_strchr(temp, COMMENT_CHAR2) || ft_strchr(temp, LABEL_CHAR) == NULL)
 	{
-
 		*index += ft_check_label_chars(str, distance, index, valid);
 	}
 	else
@@ -200,19 +227,41 @@ void 		ft_handle_label_invocation(char *str, size_t *index, t_valid* valid)
 	(i == 0) ? ft_lexical_err(valid->line_num, *index, valid) : 0;
 }
 
-void		ft_handle_indirect(char *str, size_t *index, t_valid *valid)
-{
-	*index += ft_strlen(str);
-}
-
 void		ft_handle_command(int command_id, char *str, size_t *index, t_valid *valid)
 {
 	char 		*temp;
 	size_t		i;
 
-	i = ft_strlen(op_tab[command_id].command_name);
-	//temp = ft_lstrip(str + i);
-	*index += i;//ft_strlen(str) - ft_strlen(temp);
+	// i = ft_strlen(op_tab[command_id].command_name);
+	// temp = ft_lstrip(str + i);
+	*index += ft_strlen(op_tab[command_id].command_name);
+}
+
+size_t		ft_handle_register(char *str, size_t *index, t_valid *valid)
+{
+	size_t		i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == '-' && !ft_isdigit(str[i + 1]))
+		{
+			printf("ERROR!\n");
+			ft_lexical_err(valid->line_num, *index + i, valid);
+		}
+		else if ((str[i] == ' ' || str[i] == '\t') && str[i - 1] == '-')
+		{
+			printf("OR MAYBE ERROR IS HERE!!\n");
+			ft_lexical_err(valid->line_num, *index + i, valid);
+		}
+		i++;
+	}
+	return (i);
+}
+
+size_t		ft_handle_indirect(char *str)
+{
+	return (ft_skip_chars(str, ft_isdigit, -1));
 }
 
 void		ft_check_str_chars(char *str, size_t i, t_valid *valid)
@@ -223,11 +272,13 @@ void		ft_check_str_chars(char *str, size_t i, t_valid *valid)
 	temp = str;
 	str = ft_lstrip(str);
 	valid->left_offset += ft_strlen(temp) - ft_strlen(str);
-	ft_memdel((void**)&temp);
-	if (str[i] == COMMENT_CHAR || str[i] == COMMENT_CHAR2)
+	(str[i] == '\0') ? ft_memdel((void**)&temp): 0;
+	if (str[i] == NAME_CMD_STRING[0] || str[i] == COMMENT_CMD_STRING[0])
 	{
-		return ; // i = ft_strlen(str); // this is done to stop parsing line further
+		i += ft_handle_dot(str + i, valid);
 	}
+	else if (str[i] == COMMENT_CHAR || str[i] == COMMENT_CHAR2)
+		i = ft_strlen(str);
 	else if (str[i] == '"')
 	{
 		ft_handle_double_qoutes(&i, valid);
@@ -241,6 +292,11 @@ void		ft_check_str_chars(char *str, size_t i, t_valid *valid)
 	{
 		i += 2;
 		ft_handle_label_invocation(str + i, &i, valid);
+	}
+	else if (str[i] == 'r')// && ft_isdigit(str[i + 1]))
+	{
+		i += 1;
+		i += ft_handle_register(str + i, &i, valid);
 	}
 	else if (str[i] == LABEL_CHAR || ft_strchr(LABEL_CHARS, str[i]))
 	{
@@ -256,33 +312,34 @@ void		ft_check_str_chars(char *str, size_t i, t_valid *valid)
 	}
 	else if (str[i] == SEPARATOR_CHAR)
 	{
-		while (str[i] && str[i] == SEPARATOR_CHAR)
-			i++;
-	}
-	else if (str[i] == 'r' && ft_isdigit(str[i + 1]))
-	{
-		;//handle register
+		i += ft_skip_chars(str, NULL, SEPARATOR_CHAR);
 	}
 	else if ((str[i] == '-' && ft_isdigit(str[i + 1])) || ft_isdigit(str[i]) || (str[i] == DIRECT_CHAR))
 	{
 		if (str[i] == DIRECT_CHAR && ((str[i + 1] == '-' && ft_isdigit(str[i + 2])) || ft_isdigit(str[i + 1])))
 		{
-			ft_handle_indirect(str + i, &i, valid);//check if further are digits
+			// i += (str[i + 1] == '-') ? 3 : 2;
+			i += (str[i + 1] == '-') ? 2 : 1;
+			i += ft_handle_indirect(str + i);//check if further are digits
 		}
 		else if (str[i] == '-' && ft_isdigit(str[i + 1]))
 		{
-			i += 2;
-			ft_handle_indirect(str + i, &i, valid);//check if further are digits
+			i += 1;// i += 2;
+			i += ft_handle_indirect(str + i);//check if further are digits
 		}
 		else if (ft_isdigit(str[i]))
-			ft_handle_indirect(str + i, &i, valid);//check if further are digits
+			i += ft_handle_indirect(str + i);//check if further are digits
 		else
+		{
 			ft_lexical_err(valid->line_num, i, valid);
+		}
 	}
 	else
 	{
+		printf("ERROR!\n");
 		(str[i] != ' ' && str[i] != '\t') ? ft_lexical_err(valid->line_num, i, valid) : i++;
 	}
+	printf("GOING FURTHER:%s\n", str + i);
 	(str[i] != '\0' && (!valid->errors)) ? ft_check_str_chars(str, i, valid) : 0;
 }
 
@@ -296,11 +353,9 @@ void		ft_lexical_validation(t_valid *valid)
 		ft_memdel((void**)&temp);
 		temp = ft_lstrip(valid->file[valid->line_num]);
 		valid->left_offset = ft_strlen(valid->file[valid->line_num]) - ft_strlen(temp);
-		if (temp[0] == NAME_CMD_STRING[0] || temp[0] == COMMENT_CMD_STRING[0])
-		{
-			ft_handle_dot(temp, valid);
-		}
-		else if (temp[0] != COMMENT_CHAR && temp[0] != COMMENT_CHAR2 && !ft_spaces_based_line(temp))
+		
+		// else if (temp[0] != COMMENT_CHAR && temp[0] != COMMENT_CHAR2 && !ft_spaces_based_line(temp))
+		if (temp[0] != COMMENT_CHAR && temp[0] != COMMENT_CHAR2 && !ft_spaces_based_line(temp))
 		{
 			printf("GO HERE!\n");
 			ft_check_str_chars(temp, 0, valid);
