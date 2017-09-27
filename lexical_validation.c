@@ -45,20 +45,24 @@ char 		*ft_handle_double_qoutes(t_valid *valid)
 
 	db_quote_flag = 1;
 	temp = ft_strsub(valid->file[valid->line_num], valid->i + 1, ft_strlen(valid->file[valid->line_num]));
-	printf("temp_string:%s\n", temp);
+	printf("temp_string:%s | %zu\n", temp, ft_strlen(valid->file[valid->line_num]));
 	while (valid->file[valid->line_num])
 	{
 		i = 0;
-		printf("TEMP_STRING_AT_THE_BEGINNING:%s\n", temp);
+		printf("TEMP_STRING_AT_THE_BEGINNING:%s | %zu\n", temp, ft_strlen(valid->file[valid->line_num]));
 		while (temp[i] && db_quote_flag)
 		{
 			db_quote_flag = (temp[i] == '"') ? 0 : db_quote_flag;
 			i++;
 		}
-		(temp[i] == '\0') ? valid->line_num++ : 0;
+		if (temp[i] == '\0')
+		{
+			valid->line_num++;
+			valid->i = (db_quote_flag) ? 0 : valid->i;
+		}
 		if (!db_quote_flag)
 		{
-			printf("I WAS HERE!%s\n", temp + (i - 2));
+			printf("I WAS HERE!%s\n", temp + i);
 			break ;
 		}
 		ft_memdel((void**)&temp);
@@ -117,14 +121,19 @@ int			ft_is_command(char *str, t_valid *valid)
 	printf("STRING COMMAND TEST CASE:%s\n", str);
 	while (op_tab[++i].count_args != 0)
 	{
-		if (ft_strlen(str) >= ft_strlen(op_tab[i].command_name)) // str instead string
-			temp = ft_strsub(str, 0, ft_strlen(op_tab[i].command_name)); // str instead string
+		if (ft_strlen(str) >= ft_strlen(op_tab[i].command_name))
+		{
+			temp = ft_strsub(str, 0, ft_skip_chars(str, ft_isalpha, -1));
+			if (ft_strcmp(temp, "live") == 0 && str[ft_strlen(temp) == LABEL_CHAR])
+				break ;
+		}
 		else
 			continue ;
 		if (ft_strcmp(temp, op_tab[i].command_name) == 0)
 		{
-			printf("TRUELY COMMAND STR:%s\n", str);
+			printf("TRUELY COMMAND STR:%s | %zu\n", str, valid->i);
 			valid->i += ft_strlen(string) - ft_strlen(str);
+			printf("AFTER ADDITION:%zu\n", valid->i);
 			ft_memdel((void**)&str);
 			return (i);
 		}
@@ -136,28 +145,33 @@ int			ft_is_command(char *str, t_valid *valid)
 
 void		ft_check_label_chars(char *str, size_t end, t_valid *valid)
 {
-	printf("%s | %zu | %zu\n",str, end, valid->i);
+	printf("%s | %zu | %zu\n",str + valid->i, end, valid->i);
 	while (valid->i < end && str[valid->i])
 	{
-		if (str[valid->i] == '"')
+		// if (str[valid->i] == '"')
+		// {
+		// 	printf("%s | %zu | %zu\n",str + valid->i, end, valid->i);
+		// 	if ((str = ft_handle_double_qoutes(valid)) == NULL)
+		// 	{
+		// 		break ;
+		// 	}
+		// }
+		// else if (str[valid->i] == COMMENT_CHAR2 || str[valid->i] == COMMENT_CHAR)
+		// 	break ;
+		// else if (!ft_strchr(LABEL_CHARS, str[valid->i]) && str[valid->i] != SEPARATOR_CHAR && str[valid->i] != ' ' && str[valid->i] != '\t')
+		// printf("CHAR AT ONE GLANCE:%c\n", str[valid->i]);
+		printf("CHAR IN CYCLE:%c\n", str[valid->i]);
+		if (!ft_strchr(LABEL_CHARS, str[valid->i])) //&& str[valid->i] != SEPARATOR_CHAR && str[valid->i] != ' ' && str[valid->i] != '\t')
 		{
-			printf("%s | %zu | %zu\n",str + valid->i, end, valid->i);
-			if ((str = ft_handle_double_qoutes(valid)) == NULL)
-			{
-				break ;
-			}
-		}
-		else if (str[valid->i] == COMMENT_CHAR2 || str[valid->i] == COMMENT_CHAR)
+			// ft_lexical_err(valid);
+			printf("CHAR CAUSES BREAK:%c\n", str[valid->i]);
 			break ;
-		else if (!ft_strchr(LABEL_CHARS, str[valid->i]) && str[valid->i] != SEPARATOR_CHAR && str[valid->i] != ' ' && str[valid->i] != '\t')
-		{
-			ft_lexical_err(valid);
 		}
 		valid->i++;
 	}
-	printf("STRING IS HERE: %s | %zu | %zu\n",str, end, valid->i);
-	if (str != NULL)
-		(!(str[valid->i] != '\0' && str[valid->i] != COMMENT_CHAR2 && str[valid->i] != COMMENT_CHAR)) ? valid->i = ft_strlen(str) : 0; // - 1 : 0;
+	printf("STRING IS HERE: %s | %zu | %zu\n",str + valid->i, end, valid->i);
+	// if (str != NULL)
+		// (!(str[valid->i] != '\0' && str[valid->i] != COMMENT_CHAR2 && str[valid->i] != COMMENT_CHAR)) ? valid->i = ft_strlen(str) : 0; // - 1 : 0;
 	// valid->i += (str[valid->i] != '\0' && str[valid->i] != COMMENT_CHAR2 && str[valid->i] != COMMENT_CHAR) ? 0 : ft_strlen(str) - 1;
 	// return (i);
 }
@@ -169,12 +183,13 @@ void 		ft_handle_label_declaration(char *str, t_valid* valid)
 
 	temp = NULL;
 	distance = ft_strlen(str);
-	if (ft_strchr(str, LABEL_CHAR))
+	if (ft_strchr(str + valid->i, LABEL_CHAR))
 	{
+		printf("<<<<<<<<<<<<<<<||||||||||||||||||||||||||||||||>>>>>>>>>>>>>>>>>>>>>>@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
 		distance = ft_strchr(str, LABEL_CHAR) - str;
-		temp = ft_strsub(str, 0, distance + 1);
+		temp = ft_strsub(str + valid->i, 0, distance + 1);
 	}
-	if (ft_strchr(temp, COMMENT_CHAR) /*|| ft_strchr(temp, '"')*/ || ft_strchr(temp, COMMENT_CHAR2) || ft_strchr(temp, LABEL_CHAR) == NULL)
+	if (ft_strchr(temp, COMMENT_CHAR) || ft_strchr(temp, '"') || ft_strchr(temp, COMMENT_CHAR2) || ft_strchr(temp, LABEL_CHAR) == NULL || ft_strchr(temp, DIRECT_CHAR))
 	{
 		printf("YO________-------_____________DC DRE!%s|%zu|%c\n", str, distance, str[distance]);
 		ft_check_label_chars(str, distance, valid);
@@ -213,24 +228,39 @@ void 		ft_handle_label_declaration(char *str, t_valid* valid)
 
 void 		ft_handle_label_invocation(char *str, t_valid* valid)
 {
-	size_t		i;
+	// size_t		i;
 	
+	// i = 0;
+	// while (str[i])
+	// {
+	// 	if (str[i] == '"' && i != 0)
+	// 	{
+	// 		if ((str = ft_handle_double_qoutes(valid)) == NULL)
+	// 			break ;
+	// 	}
+	// 	else if ((str[i] == COMMENT_CHAR2 || str[i] == COMMENT_CHAR) && i != 0)
+	// 		break ;
+	// 	else if (!ft_strchr(LABEL_CHARS, str[i]))
+	// 		((str[i] == SEPARATOR_CHAR || str[i] == ' ' || str[i] == '\t') && i != 0) ? 0 : ft_lexical_err(valid);
+	// 	i++;
+	// }
+	// if (str != NULL)
+	// 	valid->i += (str[i] == '\0') ? i : ft_strlen(str) - 1;
+	// (i == 0) ? ft_lexical_err(valid) : 0;
+	size_t		i;
+
 	i = 0;
+	printf(">>>>>>>>>>>>>>>>>>----------------<<<<<<%s\n", str);
 	while (str[i])
 	{
-		if (str[i] == '"' && i != 0)
+		if (!ft_strchr(LABEL_CHARS, str[i]) && !((str[i] == SEPARATOR_CHAR || str[i] == ' ' || str[i] == '\t') && i != 0))
 		{
-			if ((str = ft_handle_double_qoutes(valid)) == NULL)
-				break ;
-		}
-		else if ((str[i] == COMMENT_CHAR2 || str[i] == COMMENT_CHAR) && i != 0)
 			break ;
-		else if (!ft_strchr(LABEL_CHARS, str[i]))
-			((str[i] == SEPARATOR_CHAR || str[i] == ' ' || str[i] == '\t') && i != 0) ? 0 : ft_lexical_err(valid);
+		}
 		i++;
 	}
-	if (str != NULL)
-		valid->i += (str[i] == '\0') ? i : ft_strlen(str) - 1;
+	valid->i += i;
+	printf("CURRENT I AS INDEX IS:%zu\n", i);
 	(i == 0) ? ft_lexical_err(valid) : 0;
 }
 
@@ -296,7 +326,7 @@ void		ft_check_str_chars(char *str, t_valid *valid)
 	// str = ft_lstrip(str + valid->i);
 	// valid->i += ft_strlen(temp) - ft_strlen(str);
 	(str[valid->i] == '\0') ? ft_memdel((void**)&temp): 0;
-	printf("STRING AT THE BEGINNING:%s\n", str);
+	printf("STRING AT THE BEGINNING:%s\n", str + valid->i);
 	if (str[valid->i] == NAME_CMD_STRING[0] || str[valid->i] == COMMENT_CMD_STRING[0])
 	{
 		printf("DOT CASE\n");
@@ -307,14 +337,16 @@ void		ft_check_str_chars(char *str, t_valid *valid)
 	else if (str[valid->i] == '"')
 	{
 		ft_handle_double_qoutes(valid);
-		valid->i += 2;
+		valid->i += 1;
 	}
 	else if ((command_id = ft_is_command(str + valid->i, valid)) != -1)
 	{
 		valid->i += ft_strlen(op_tab[command_id].command_name);
+		printf("AND THAN HE JUST FUCKED UP!%zu | %zu\n", valid->i, ft_strlen(op_tab[command_id].command_name));
 	}
 	else if (str[valid->i] == DIRECT_CHAR && str[valid->i + 1] == LABEL_CHAR)
 	{
+		printf("I AM GODDAM HERE!\n");
 		valid->i += 2;
 		ft_handle_label_invocation(str + valid->i, valid);
 	}
@@ -325,15 +357,21 @@ void		ft_check_str_chars(char *str, t_valid *valid)
 		// ft_handle_register(str + (++valid->i), valid);
 	}
 	else if ((str[valid->i] == '-' && ft_isdigit(str[valid->i + 1])) || ft_isdigit(str[valid->i]) || (str[valid->i] == DIRECT_CHAR))
+	{
+		printf("SMTH BAD GONNA HAPPEN!\n");
 		(!ft_handle_indirect(str, valid)) ? ft_lexical_err(valid) : 0;
+	}
 	else if (str[valid->i] == LABEL_CHAR || ft_strchr(LABEL_CHARS, str[valid->i]))
 	{
+		printf("MEHELAGENESCA!\n");
+		printf("WHAT IS THERE:%c\n", str[valid->i]);
 		(str[valid->i] == LABEL_CHAR) ? ft_handle_label_invocation(str + (++valid->i), valid)
 										: ft_handle_label_declaration(str, valid);// : ft_handle_label_declaration(str + valid->i, valid);
 	}
 	else if (str[valid->i] == SEPARATOR_CHAR)
 	{
-		valid->i += ft_skip_chars(str, NULL, SEPARATOR_CHAR);
+		printf("MAYBE HERE, NO?!?!?!\n");
+		valid->i += ft_skip_chars(str + valid->i, NULL, SEPARATOR_CHAR);
 	}
 	else
 	{
