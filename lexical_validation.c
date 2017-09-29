@@ -109,6 +109,20 @@ void 		ft_handle_dot(char *str, t_valid* valid)
 	valid->i += i;
 }
 
+size_t		ft_till_is_word(char *str)
+{
+	size_t		i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (!ft_isdigit(str[i]) && !ft_isalpha(str[i]))
+			break ;
+		i++;
+	}
+	return (i);
+}
+
 int			ft_is_command(char *str, t_valid *valid)
 {
 	int			i;
@@ -123,7 +137,7 @@ int			ft_is_command(char *str, t_valid *valid)
 	{
 		if (ft_strlen(str) >= ft_strlen(op_tab[i].command_name))
 		{
-			temp = ft_strsub(str, 0, ft_skip_chars(str, ft_isalpha, -1));
+			temp = ft_strsub(str, 0, ft_till_is_word(str)/*ft_skip_chars(str, ft_isalpha, -1)*/); //ld2: -> Not command
 			if (ft_strcmp(temp, "live") == 0 && str[ft_strlen(temp) == LABEL_CHAR])
 				break ;
 		}
@@ -264,24 +278,43 @@ void 		ft_handle_label_invocation(char *str, t_valid* valid)
 	(i == 0) ? ft_lexical_err(valid) : 0;
 }
 
+size_t		ft_skip_hex_digits(char *str)
+{
+	size_t		i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (!ft_isdigit(str[i]))
+		{
+			if (str[i] == 'x' && ft_isdigit(str[i - 1]) && ft_isdigit(str[i + 1]))
+				;
+			else
+				break ;
+		}
+		i++;
+	}
+	return (i);
+}
+
 size_t		ft_handle_indirect(char *str, t_valid *valid)
 {
 	if (str[valid->i] == DIRECT_CHAR && ((str[valid->i + 1] == '-' && ft_isdigit(str[valid->i + 2])) || ft_isdigit(str[valid->i + 1])))
 	{
 		valid->i += (str[valid->i + 1] == '-') ? 2 : 1;
-		valid->i += ft_skip_chars(str + valid->i, ft_isdigit, -1);
+		valid->i += ft_skip_hex_digits(str + valid->i);//ft_skip_chars(str + valid->i, ft_isdigit, -1);
 		return (1);
 	}
 	else if (str[valid->i] == '-' && ft_isdigit(str[valid->i + 1]))
 	{
 		valid->i += 1;
-		valid->i += ft_skip_chars(str + valid->i, ft_isdigit, -1);
+		valid->i += ft_skip_hex_digits(str + valid->i);//ft_skip_chars(str + valid->i, ft_isdigit, -1);
 		return (1);
 	}
 	else if (ft_isdigit(str[valid->i]))
 	{
 		printf("NUMBERS ARE FOUND!!!!!!!!!!!!!!!!!!!!valid->i:%zu\n", valid->i);
-		valid->i += ft_skip_chars(str + valid->i, ft_isdigit, -1);
+		valid->i += ft_skip_hex_digits(str + valid->i);//ft_skip_chars(str + valid->i, ft_isdigit, -1);
 		printf("______________________AFTER SKIP________________!!!!!!!!!!!!valid->i:%zu\n", valid->i);
 		return (1);
 	}
@@ -378,7 +411,9 @@ void		ft_check_str_chars(char *str, t_valid *valid)
 		(str[valid->i] != ' ' && str[valid->i] != '\t') ? printf("ERROR TYPE%s\n", str + valid->i), ft_lexical_err(valid) : valid->i++;
 	}
 	printf("GOING FURTHER:%s\n", str + valid->i);
-	(str[valid->i] != '\0' && (!valid->errors) && valid->file[valid->line_num]) ? ft_check_str_chars(str, valid) : 0;
+	// if (valid->file[valid->line_num + 1] == NULL &&  str[valid->i] == '\0')
+	// 	return ;
+	(str[valid->i] != '\0' && /*(!valid->errors) &&*/ valid->file[valid->line_num]) ? ft_check_str_chars(str, valid) : 0;
 }
 
 void		ft_lexical_validation(t_valid *valid)

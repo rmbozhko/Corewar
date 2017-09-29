@@ -45,4 +45,5 @@ void 				ft_lexical_validation(t_valid* valid);
 void 				ft_syntax_validation(t_valid* valid);
 void				ft_lexical_err(t_valid *valid);
 void				ft_check_str_chars(char *str, t_valid *valid);
+size_t				ft_till_is_word(char *str);
 #endif

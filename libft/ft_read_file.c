@@ -27,7 +27,7 @@ char 				**ft_read_file(const int fd)
 	char		*line;
 
 	len = 10;
-	arr = (char**)malloc(sizeof(char*) * len);
+	arr = (char**)malloc(sizeof(char*) * len + 1);
 	i = 0;
 	line = ft_strnew(0);
 	while (get_next_line(fd, &line, ft_strnew(0)) > 0)

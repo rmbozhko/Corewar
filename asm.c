@@ -52,6 +52,7 @@ int			main(int argc, char const *argv[])
 		{
 			fd = open(argv[1], O_RDONLY);
 			(fd >= 0 && fd <= 4096) ? ft_validate(fd) : /*Handle case as an error*/0;
+			// while (1);
 		}
 	}
 	else
