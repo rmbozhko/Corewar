@@ -45,7 +45,7 @@ char 		*ft_handle_double_qoutes(t_valid *valid)
 
 	db_quote_flag = 1;
 	temp = ft_strsub(valid->file[valid->line_num], valid->i + 1, ft_strlen(valid->file[valid->line_num]));
-	printf("temp_string:%s | %zu\n", temp, ft_strlen(valid->file[valid->line_num]));
+	printf("temp_string:%s | %zu | %zu\n", temp, ft_strlen(valid->file[valid->line_num]), valid->line_num);
 	while (valid->file[valid->line_num])
 	{
 		i = 0;
@@ -55,21 +55,29 @@ char 		*ft_handle_double_qoutes(t_valid *valid)
 			db_quote_flag = (temp[i] == '"') ? 0 : db_quote_flag;
 			i++;
 		}
-		if (temp[i] == '\0')
-		{
-			valid->line_num++;
-			valid->i = (db_quote_flag) ? 0 : valid->i;
-		}
+		// Previously it was here!
+		// if (temp[i] == '\0')
+		// {
+		// 	valid->line_num++;
+		// 	valid->i = (db_quote_flag) ? 0 : valid->i;
+		// }
 		if (!db_quote_flag)
 		{
 			printf("I WAS HERE!%s\n", temp + i);
 			break ;
 		}
+		if (temp[i] == '\0')
+		{
+			valid->line_num++;
+			valid->i = (db_quote_flag) ? 0 : valid->i;
+		}
 		ft_memdel((void**)&temp);
 		// valid->line_num++;
 		temp = (valid->file[valid->line_num]) ? ft_strdup(valid->file[valid->line_num]) : temp;
 	}
+	printf("BEFORE VALID->I:%zu|%zu\n", valid->i, valid->line_num);
 	valid->i += i;
+	printf("AFTER VAlid->I:%zu\n", valid->i);
 	if (valid->file[valid->line_num] == NULL)
 		return (NULL);
 	printf("UPDATED_STRING:%c\n", temp[i]);
@@ -116,7 +124,7 @@ size_t		ft_till_is_word(char *str)
 	i = 0;
 	while (str[i])
 	{
-		if (!ft_isdigit(str[i]) && !ft_isalpha(str[i]))
+		if (str[i] == ' ' || str[i] == '\t' || str[i] == DIRECT_CHAR || str[i] == LABEL_CHAR || (str[i] == '-' && ft_isdigit(str[i + 1])))//(!ft_isdigit(str[i]) && ())
 			break ;
 		i++;
 	}
@@ -138,8 +146,12 @@ int			ft_is_command(char *str, t_valid *valid)
 		if (ft_strlen(str) >= ft_strlen(op_tab[i].command_name))
 		{
 			temp = ft_strsub(str, 0, ft_till_is_word(str)/*ft_skip_chars(str, ft_isalpha, -1)*/); //ld2: -> Not command
-			if (ft_strcmp(temp, "live") == 0 && str[ft_strlen(temp) == LABEL_CHAR])
+			printf("COMMAND TESTING:%s|%c\n", temp, str[ft_strlen(temp)]);
+			if (ft_strcmp(temp, "live") == 0 && str[ft_strlen(temp)] == LABEL_CHAR)
+			{
+				printf("THAT'S IT!\n");
 				break ;
+			}
 		}
 		else
 			continue ;
@@ -157,37 +169,51 @@ int			ft_is_command(char *str, t_valid *valid)
 	return (-1);
 }
 
+// void		ft_check_label_chars(char *str, size_t end, t_valid *valid)
+// {
+// 	printf("%s | %zu | %zu\n",str + valid->i, end, valid->i);
+// 	while (valid->i < end && str[valid->i])
+// 	{
+// 		// if (str[valid->i] == '"')
+// 		// {
+// 		// 	printf("%s | %zu | %zu\n",str + valid->i, end, valid->i);
+// 		// 	if ((str = ft_handle_double_qoutes(valid)) == NULL)
+// 		// 	{
+// 		// 		break ;
+// 		// 	}
+// 		// }
+// 		// else if (str[valid->i] == COMMENT_CHAR2 || str[valid->i] == COMMENT_CHAR)
+// 		// 	break ;
+// 		// else if (!ft_strchr(LABEL_CHARS, str[valid->i]) && str[valid->i] != SEPARATOR_CHAR && str[valid->i] != ' ' && str[valid->i] != '\t')
+// 		// printf("CHAR AT ONE GLANCE:%c\n", str[valid->i]);
+// 		printf("CHAR IN CYCLE:%c\n", str[valid->i]);
+// 		if (!ft_strchr(LABEL_CHARS, str[valid->i])) //&& str[valid->i] != SEPARATOR_CHAR && str[valid->i] != ' ' && str[valid->i] != '\t')
+// 		{
+// 			// ft_lexical_err(valid);
+// 			printf("CHAR CAUSES BREAK:%c\n", str[valid->i]);
+// 			break ;
+// 		}
+// 		valid->i++;
+// 	}
+// 	printf("STRING IS HERE: %s | %zu | %zu\n",str + valid->i, end, valid->i);
+// 	// if (str != NULL)
+// 		// (!(str[valid->i] != '\0' && str[valid->i] != COMMENT_CHAR2 && str[valid->i] != COMMENT_CHAR)) ? valid->i = ft_strlen(str) : 0; // - 1 : 0;
+// 	// valid->i += (str[valid->i] != '\0' && str[valid->i] != COMMENT_CHAR2 && str[valid->i] != COMMENT_CHAR) ? 0 : ft_strlen(str) - 1;
+// 	// return (i);
+// }
+
 void		ft_check_label_chars(char *str, size_t end, t_valid *valid)
 {
-	printf("%s | %zu | %zu\n",str + valid->i, end, valid->i);
-	while (valid->i < end && str[valid->i])
+	size_t		i;
+
+	i = 0;
+	while (i < end && str[i])
 	{
-		// if (str[valid->i] == '"')
-		// {
-		// 	printf("%s | %zu | %zu\n",str + valid->i, end, valid->i);
-		// 	if ((str = ft_handle_double_qoutes(valid)) == NULL)
-		// 	{
-		// 		break ;
-		// 	}
-		// }
-		// else if (str[valid->i] == COMMENT_CHAR2 || str[valid->i] == COMMENT_CHAR)
-		// 	break ;
-		// else if (!ft_strchr(LABEL_CHARS, str[valid->i]) && str[valid->i] != SEPARATOR_CHAR && str[valid->i] != ' ' && str[valid->i] != '\t')
-		// printf("CHAR AT ONE GLANCE:%c\n", str[valid->i]);
-		printf("CHAR IN CYCLE:%c\n", str[valid->i]);
-		if (!ft_strchr(LABEL_CHARS, str[valid->i])) //&& str[valid->i] != SEPARATOR_CHAR && str[valid->i] != ' ' && str[valid->i] != '\t')
-		{
-			// ft_lexical_err(valid);
-			printf("CHAR CAUSES BREAK:%c\n", str[valid->i]);
+		if (!ft_strchr(LABEL_CHARS, str[i]))
 			break ;
-		}
-		valid->i++;
+		i++;
 	}
-	printf("STRING IS HERE: %s | %zu | %zu\n",str + valid->i, end, valid->i);
-	// if (str != NULL)
-		// (!(str[valid->i] != '\0' && str[valid->i] != COMMENT_CHAR2 && str[valid->i] != COMMENT_CHAR)) ? valid->i = ft_strlen(str) : 0; // - 1 : 0;
-	// valid->i += (str[valid->i] != '\0' && str[valid->i] != COMMENT_CHAR2 && str[valid->i] != COMMENT_CHAR) ? 0 : ft_strlen(str) - 1;
-	// return (i);
+	valid->i += i;
 }
 
 void 		ft_handle_label_declaration(char *str, t_valid* valid)
@@ -197,15 +223,17 @@ void 		ft_handle_label_declaration(char *str, t_valid* valid)
 
 	temp = NULL;
 	distance = ft_strlen(str);
+	printf("WHAT THE FUCK IS GOING ON!%s|%zu\n", str + valid->i, distance);
 	if (ft_strchr(str + valid->i, LABEL_CHAR))
 	{
 		printf("<<<<<<<<<<<<<<<||||||||||||||||||||||||||||||||>>>>>>>>>>>>>>>>>>>>>>@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
 		distance = ft_strchr(str, LABEL_CHAR) - str;
 		temp = ft_strsub(str + valid->i, 0, distance + 1);
+		printf("TEMP STRING IS OVER HERE:%s\n", temp);
 	}
 	if (ft_strchr(temp, COMMENT_CHAR) || ft_strchr(temp, '"') || ft_strchr(temp, COMMENT_CHAR2) || ft_strchr(temp, LABEL_CHAR) == NULL || ft_strchr(temp, DIRECT_CHAR))
 	{
-		printf("YO________-------_____________DC DRE!%s|%zu|%c\n", str, distance, str[distance]);
+		printf("YO________-------_____________DC DRE!%s|%zu|%c\n", str + valid->i, distance, str[distance]);
 		ft_check_label_chars(str, distance, valid);
 		write(1, "OLA!\n", 5);
 	}
@@ -369,7 +397,9 @@ void		ft_check_str_chars(char *str, t_valid *valid)
 		valid->i += ft_strlen(str + valid->i);
 	else if (str[valid->i] == '"')
 	{
-		ft_handle_double_qoutes(valid);
+		str = ft_handle_double_qoutes(valid);
+		if (str == NULL)
+			return ;
 		valid->i += 1;
 	}
 	else if ((command_id = ft_is_command(str + valid->i, valid)) != -1)
@@ -412,8 +442,8 @@ void		ft_check_str_chars(char *str, t_valid *valid)
 	}
 	printf("GOING FURTHER:%s\n", str + valid->i);
 	// if (valid->file[valid->line_num + 1] == NULL &&  str[valid->i] == '\0')
-	// 	return ;
-	(str[valid->i] != '\0' && /*(!valid->errors) &&*/ valid->file[valid->line_num]) ? ft_check_str_chars(str, valid) : 0;
+		// return ;
+	(str[valid->i] != '\0' /*&& (!valid->errors)*/ && valid->file[valid->line_num]) ? ft_check_str_chars(str, valid) : 0;
 }
 
 void		ft_lexical_validation(t_valid *valid)
@@ -421,6 +451,7 @@ void		ft_lexical_validation(t_valid *valid)
 	char 		*temp;
 
 	temp = ft_strnew(0);
+	ft_putbidstr(valid->file);
 	while (valid->file[valid->line_num])
 	{
 		ft_memdel((void**)&temp);
