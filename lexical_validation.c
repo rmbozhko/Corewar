@@ -80,6 +80,7 @@ char 		*ft_handle_double_qoutes(t_valid *valid)
 	printf("AFTER VAlid->I:%zu\n", valid->i);
 	if (valid->file[valid->line_num] == NULL)
 		return (NULL);
+<<<<<<< HEAD
 	// printf("UPDATED_STRING:%c\n", temp[i]);
 	if (temp[i] == '\0')
 	{
@@ -89,6 +90,10 @@ char 		*ft_handle_double_qoutes(t_valid *valid)
 	printf("ENRICE!\n");
 	return (temp);
 	// return ((temp[i] == '\0') ? NULL : temp);
+=======
+	printf("UPDATED_STRING:%c\n", temp[i]);
+	return ((temp[i] == '\0') ? NULL : temp);
+>>>>>>> 2ff96b28c2bfb2372bbeaca4fbd9d123282939a7
 }
 
 size_t 		ft_name_cmmt(char *line, int flag, t_valid *valid)
@@ -122,6 +127,7 @@ void 		ft_handle_dot(char *str, t_valid* valid)
 	else
 		ft_lexical_err(valid);
 	valid->i += i;
+<<<<<<< HEAD
 }
 
 size_t		ft_till_is_word(char *str)
@@ -138,6 +144,24 @@ size_t		ft_till_is_word(char *str)
 	return (i);
 }
 
+=======
+}
+
+size_t		ft_till_is_word(char *str)
+{
+	size_t		i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == ' ' || str[i] == '\t' || str[i] == DIRECT_CHAR || str[i] == LABEL_CHAR || (str[i] == '-' && ft_isdigit(str[i + 1])))//(!ft_isdigit(str[i]) && ())
+			break ;
+		i++;
+	}
+	return (i);
+}
+
+>>>>>>> 2ff96b28c2bfb2372bbeaca4fbd9d123282939a7
 int			ft_is_command(char *str, t_valid *valid)
 {
 	int			i;
@@ -153,7 +177,11 @@ int			ft_is_command(char *str, t_valid *valid)
 		if (ft_strlen(str) >= ft_strlen(op_tab[i].command_name))
 		{
 			temp = ft_strsub(str, 0, ft_till_is_word(str)/*ft_skip_chars(str, ft_isalpha, -1)*/); //ld2: -> Not command
+<<<<<<< HEAD
 			// printf("COMMAND TESTING:%s|%c\n", temp, str[ft_strlen(temp)]);
+=======
+			printf("COMMAND TESTING:%s|%c\n", temp, str[ft_strlen(temp)]);
+>>>>>>> 2ff96b28c2bfb2372bbeaca4fbd9d123282939a7
 			if (ft_strcmp(temp, "live") == 0 && str[ft_strlen(temp)] == LABEL_CHAR)
 			{
 				printf("THAT'S IT!\n");
@@ -298,10 +326,33 @@ void 		ft_handle_label_invocation(char *str, t_valid* valid)
 	// (i == 0) ? ft_lexical_err(valid) : 0;
 	size_t		i;
 
+<<<<<<< HEAD
+=======
 	i = 0;
 	printf(">>>>>>>>>>>>>>>>>>----------------<<<<<<%s\n", str);
 	while (str[i])
 	{
+		if (!ft_strchr(LABEL_CHARS, str[i]) && !((str[i] == SEPARATOR_CHAR || str[i] == ' ' || str[i] == '\t') && i != 0))
+		{
+			break ;
+		}
+		i++;
+	}
+	valid->i += i;
+	printf("CURRENT I AS INDEX IS:%zu\n", i);
+	(i == 0) ? ft_lexical_err(valid) : 0;
+}
+
+size_t		ft_skip_hex_digits(char *str)
+{
+	size_t		i;
+
+>>>>>>> 2ff96b28c2bfb2372bbeaca4fbd9d123282939a7
+	i = 0;
+	printf(">>>>>>>>>>>>>>>>>>----------------<<<<<<%s\n", str);
+	while (str[i])
+	{
+<<<<<<< HEAD
 		if (!ft_strchr(LABEL_CHARS, str[i]) && !((str[i] == SEPARATOR_CHAR || str[i] == ' ' || str[i] == '\t') && i != 0))
 		{
 			break ;
@@ -384,6 +435,71 @@ size_t		ft_handle_indirect(char *str, t_valid *valid)
 // 	valid->i += i;
 // }
 
+=======
+		if (!ft_isdigit(str[i]))
+		{
+			if (str[i] == 'x' && ft_isdigit(str[i - 1]) && ft_isdigit(str[i + 1]))
+				;
+			else
+				break ;
+		}
+		i++;
+	}
+	return (i);
+}
+
+size_t		ft_handle_indirect(char *str, t_valid *valid)
+{
+	if (str[valid->i] == DIRECT_CHAR && ((str[valid->i + 1] == '-' && ft_isdigit(str[valid->i + 2])) || ft_isdigit(str[valid->i + 1])))
+	{
+		valid->i += (str[valid->i + 1] == '-') ? 2 : 1;
+		valid->i += ft_skip_hex_digits(str + valid->i);//ft_skip_chars(str + valid->i, ft_isdigit, -1);
+		return (1);
+	}
+	else if (str[valid->i] == '-' && ft_isdigit(str[valid->i + 1]))
+	{
+		valid->i += 1;
+		valid->i += ft_skip_hex_digits(str + valid->i);//ft_skip_chars(str + valid->i, ft_isdigit, -1);
+		return (1);
+	}
+	else if (ft_isdigit(str[valid->i]))
+	{
+		printf("NUMBERS ARE FOUND!!!!!!!!!!!!!!!!!!!!valid->i:%zu\n", valid->i);
+		valid->i += ft_skip_hex_digits(str + valid->i);//ft_skip_chars(str + valid->i, ft_isdigit, -1);
+		printf("______________________AFTER SKIP________________!!!!!!!!!!!!valid->i:%zu\n", valid->i);
+		return (1);
+	}
+	else
+	{
+		printf("ERROR MIGHT BE HERE!\n");
+		return (0);
+	}
+}
+
+void		ft_handle_register(char *str, t_valid *valid)
+{
+	size_t		i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == '-' && !ft_isdigit(str[i + 1]))
+		{
+			if (!ft_handle_indirect(str + i, valid))
+				ft_lexical_err(valid);
+		}
+		else if ((str[i] == ' ' || str[i] == '\t') && str[i - 1] == '-')
+		{
+			printf("OR MAYBE ERROR IS HERE!!\n");
+			ft_lexical_err(valid);
+		}
+		else if (str[i])
+		i++;
+	}
+	valid->i += i;
+}
+
+>>>>>>> 2ff96b28c2bfb2372bbeaca4fbd9d123282939a7
 void		ft_check_str_chars(char *str, t_valid *valid)
 {
 	int 		command_id;
@@ -406,12 +522,17 @@ void		ft_check_str_chars(char *str, t_valid *valid)
 	else if (str[valid->i] == '"')
 	{
 		str = ft_handle_double_qoutes(valid);
+<<<<<<< HEAD
 		printf("Yo What is uP?!\n");
 		if (str == NULL)
 		{
 			printf("BONJOURNO!\n");
 			return ;
 		}
+=======
+		if (str == NULL)
+			return ;
+>>>>>>> 2ff96b28c2bfb2372bbeaca4fbd9d123282939a7
 		valid->i += 1;
 	}
 	else if ((command_id = ft_is_command(str + valid->i, valid)) != -1)
@@ -469,7 +590,11 @@ void		ft_lexical_validation(t_valid *valid)
 		ft_memdel((void**)&temp);
 		temp = ft_lstrip(valid->file[valid->line_num]);
 		valid->i = ft_strlen(valid->file[valid->line_num]) - ft_strlen(temp);
+<<<<<<< HEAD
 		if (temp[0] != COMMENT_CHAR && temp[0] != COMMENT_CHAR2 && !ft_space_based_line(temp))
+=======
+		if (temp[0] != COMMENT_CHAR && temp[0] != COMMENT_CHAR2 && !ft_spaces_based_line(temp))
+>>>>>>> 2ff96b28c2bfb2372bbeaca4fbd9d123282939a7
 		{
 			printf("GO HERE!\n");
 			ft_check_str_chars(valid->file[valid->line_num], valid);

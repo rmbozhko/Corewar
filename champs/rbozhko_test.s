@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #debut du mega truc qu'il est trop dur a faire
 
 .name "Jumper !"
@@ -68,3 +69,9 @@ goboucle1:	live %66
 		zjmp %:goboucle1
 finboucle1:	xor r3,r3,r3
 		zjmp %1
+=======
+.name "Jumper !"
+.comment "en fait C forker !"
+
+label: for 1, %:lol 
+>>>>>>> 2ff96b28c2bfb2372bbeaca4fbd9d123282939a7
