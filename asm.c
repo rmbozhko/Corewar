@@ -35,8 +35,9 @@ int			ft_validate(const int fd)
 	valid.file = ft_read_file(fd);
 	ft_lexical_validation(&valid);
 	valid.line_num = 0;
-	printf("Number of erros:%d\n", valid.errors);
+	printf("Number of erros after lex_valid:%d\n", valid.errors);
 	(valid.errors == 0) ? ft_syntax_validation(&valid) : 0;
+	printf("Number of erros after syn_valid:%d\n", valid.errors);
 	valid.line_num = 0;
 	(valid.errors == 0) ? printf("Logical: 1\n")/*Logical validation*/ : 0;
 	return ((valid.errors == 0) ? (1) : (0));
@@ -52,6 +53,7 @@ int			main(int argc, char const *argv[])
 		{
 			fd = open(argv[1], O_RDONLY);
 			(fd >= 0 && fd <= 4096) ? ft_validate(fd) : /*Handle case as an error*/0;
+			// while (1);
 		}
 	}
 	else

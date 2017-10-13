@@ -32,7 +32,7 @@ typedef		struct s_operations
 typedef		struct 	s_valid
 {
 	char		**file;
-	int			line_num;
+	size_t		line_num;
 	size_t		i;
 	int			errors;
 	int			name;
@@ -44,5 +44,12 @@ char 				**ft_read_file(const int fd);
 void 				ft_lexical_validation(t_valid* valid);
 void 				ft_syntax_validation(t_valid* valid);
 void				ft_lexical_err(t_valid *valid);
-// void				ft_check_str_chars(char *str, size_t i, t_valid *valid);
+void				ft_check_str_chars(char *str, t_valid *valid);
+size_t				ft_till_is_word(char *str);
+int					ft_is_command(char *str, t_valid *valid);
+size_t				ft_handle_indirect(char *str, t_valid *valid);
+int 				ft_space_based_line(char *str);
+char 				*ft_handle_double_qoutes(t_valid *valid);
+void				ft_handle_repeating_error(char *str, char *temp, t_valid *valid);
+void				ft_syntax_error(t_valid *valid, char *error_description);
 #endif
