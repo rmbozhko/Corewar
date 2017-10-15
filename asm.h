@@ -11,6 +11,7 @@
 # define IF_FP ((fd < 0 || fd > 4096) || ((read(fd, buff, 0)) == -1 && !(head)))
 # define IF_SP (!(line) || !(ft_memset(buff, 0, BUFF_SIZE + 1)))
 # define MEMORY_COEF	1
+# define GEN_INFO (valid->name && valid->cmmt)
 
 void			ft_handle_error(void);
 int				get_next_line(const int fd, char **line, char *str);
@@ -37,6 +38,7 @@ typedef		struct 	s_valid
 	int			errors;
 	int			name;
 	int			cmmt;
+	size_t		flag : 1;
 }					t_valid;
 
 
@@ -46,13 +48,12 @@ void 				ft_syntax_validation(t_valid* valid);
 void				ft_lexical_err(t_valid *valid);
 void				ft_check_str_chars(char *str, t_valid *valid);
 size_t				ft_till_is_word(char *str);
-<<<<<<< HEAD
 int					ft_is_command(char *str, t_valid *valid);
 size_t				ft_handle_indirect(char *str, t_valid *valid);
 int 				ft_space_based_line(char *str);
 char 				*ft_handle_double_qoutes(t_valid *valid);
-void				ft_handle_repeating_error(char *str, char *temp, t_valid *valid);
-void				ft_syntax_error(t_valid *valid, char *error_description);
-=======
->>>>>>> 2ff96b28c2bfb2372bbeaca4fbd9d123282939a7
+void				ft_handle_repeating_error(char *str, char *temp, t_valid *valid, int flag);
+void				ft_syntax_error(t_valid *valid, char *error_description, int flag);
+size_t				ft_syn_handle_register(t_valid *valid);
+
 #endif

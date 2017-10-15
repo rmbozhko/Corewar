@@ -32,6 +32,7 @@ int			ft_validate(const int fd)
 	valid.errors = 0;
 	valid.name = 0;
 	valid.cmmt = 0;
+	valid.flag = 1;
 	valid.file = ft_read_file(fd);
 	ft_lexical_validation(&valid);
 	valid.line_num = 0;
