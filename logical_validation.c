@@ -123,7 +123,7 @@ void		ft_log_handle_command(t_valid *valid, size_t j, char *str)
 	size_t		commas;
 
 	commas = 0;
-	cmd_opcode = ft_is_command(valid->file[valid->line_num] + valid->i, valid);
+	cmd_opcode = ft_is_command(valid->file[valid->line_num]/* + valid->i*/, valid);
 	valid->i += ft_strlen(op_tab[cmd_opcode].command_name);
 	printf("CURR STR:%s AND cmd_opcode:%i|%zu\n", valid->file[valid->line_num] + valid->i, cmd_opcode, valid->i);
 	valid->i = skip_whitespaces(valid->file[valid->line_num], valid->i);
@@ -176,7 +176,7 @@ void		ft_logical_validation(t_valid *valid, t_assembler *asml)
 				ft_log_handle_dot(valid, asml);
 				printf("AFTER I HAVE HANDLED DOT!%s|%zu|%zu|%zu\n", valid->file[valid->line_num] + valid->i, valid->line_num, ft_strlen(valid->file[valid->line_num]), valid->i);
 			}
-			else if (ft_is_command(valid->file[valid->line_num] + valid->i, valid) != -1)
+			else if (ft_is_command(valid->file[valid->line_num]/* + valid->i*/, valid) != -1)
 			{
 				ft_log_handle_command(valid, 0, ft_strnew(0));
 			}

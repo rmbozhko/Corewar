@@ -202,7 +202,7 @@ int 	ft_is_command(char *str, t_valid *valid)
 	i = 0;
 	found_num = -1;
 	found_i = -1;
-	start = skip_whitespaces(str, i);
+	start = skip_whitespaces(str, i); // everything because of this fucking whitespaces skipping!!!!!!!!!!!!!!! it omits that fucking space, so 'd' is left
 	while (str[i])
 	{
 		cropped = ft_strsub(str, start, i);
@@ -210,8 +210,11 @@ int 	ft_is_command(char *str, t_valid *valid)
 		{
 			found_num = compare_command(cropped);
 			found_i = i;
-			if (str[found_i + 1])
+			printf("CHAR COMMAND FOUND:%s|%s\n", str + i, cropped);
+			if (str[found_i] == LABEL_CHAR)
 			{
+				printf("&&&&&&&&&&&*#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
+				return (-1);
 				// found_num = (str[found_i + 1] == LABEL_CHAR) ? -1 : found_num;
 			}
 		}
@@ -226,6 +229,8 @@ int 	ft_is_command(char *str, t_valid *valid)
 	//if (str[found_i] != DIRECT_CHAR && str[found_i] != ' ' && str[found_i] != '\t')
 	//	return (-1);
 	// if (parse_args(ft_strsub(str, found_i, ft_strlen(str) - found_i), found_num) == 1)
+	printf("INSTRUCTION FOUND:%d\n", found_num);
+	valid->i += start;
 	return (found_num);
 }
 
@@ -288,7 +293,7 @@ int  		ft_handle_label_char_if_statement(char *temp)
 		{
 			// i = ft_strchr(temp, COMMENT_CHAR) - str;
 			if (str - ft_strchr(temp, COMMENT_CHAR) < 0)
-				return (0);
+				return (1);
 		}
 	}
 	else if (ft_strchr(temp, '"'))
@@ -297,7 +302,7 @@ int  		ft_handle_label_char_if_statement(char *temp)
 		{
 			// i = ft_strchr(temp, '"') - str;
 			if (str - ft_strchr(temp, '"') < 0)
-				return (0);
+				return (1);
 		}
 	}
 	else if (ft_strchr(temp, COMMENT_CHAR2))
@@ -306,7 +311,7 @@ int  		ft_handle_label_char_if_statement(char *temp)
 		{
 			// i = ft_strchr(temp, COMMENT_CHAR2) - str;
 			if (str - ft_strchr(temp, COMMENT_CHAR2) < 0)
-				return (0);
+				return (1);
 		}
 		
 	}
@@ -316,10 +321,10 @@ int  		ft_handle_label_char_if_statement(char *temp)
 		{
 			// i = ft_strchr(temp, COMMENT_CHAR2) - str;
 			if (str - ft_strchr(temp, DIRECT_CHAR) < 0)
-				return (0);
+				return (1);
 		}
 	}
-	return (1);
+	return (0);
 }
 
 void 		ft_handle_label_declaration(char *str, t_valid* valid)
@@ -456,10 +461,13 @@ size_t		ft_skip_hex_digits(char *str)
 
 size_t		ft_handle_indirect(char *str, t_valid *valid)
 {
+	printf("ERROR STRING:%s\n", str + valid->i);
 	if (str[valid->i] == DIRECT_CHAR && ((str[valid->i + 1] == '-' && ft_isdigit(str[valid->i + 2])) || ft_isdigit(str[valid->i + 1])))
 	{
 		valid->i += (str[valid->i + 1] == '-') ? 2 : 1;
+		printf("YO COUNTER IS HERE%zu\n", valid->i);
 		valid->i += ft_skip_hex_digits(str + valid->i);//ft_skip_chars(str + valid->i, ft_isdigit, -1);
+		printf("YO COUNTER IS AFTER%zu\n", valid->i);
 		return (1);
 	}
 	else if (str[valid->i] == '-' && ft_isdigit(str[valid->i + 1]))
@@ -477,7 +485,7 @@ size_t		ft_handle_indirect(char *str, t_valid *valid)
 	}
 	else
 	{
-		// printf("ERROR MIGHT BE HERE!\n");
+		printf("ERROR MIGHT BE HERE!\n");
 		return (0);
 	}
 }
@@ -535,7 +543,7 @@ void		ft_check_str_chars(char *str, t_valid *valid)
 		}
 		valid->i += 1;
 	}
-	else if ((command_id = ft_is_command(str + valid->i, valid)) != -1)
+	else if ((command_id = ft_is_command(str/* + valid->i*/, valid)) != -1)
 	{
 		valid->i += ft_strlen(op_tab[command_id].command_name);
 		printf("AND THAN HE JUST FUCKED UP!%zu | %zu\n", valid->i, ft_strlen(op_tab[command_id].command_name));

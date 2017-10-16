@@ -66,8 +66,10 @@ void		ft_handle_null_err_description(t_valid *valid, int flag)
 	else if ((valid->file[valid->line_num][valid->i] == '-' && ft_isdigit(valid->file[valid->line_num][valid->i + 1]))
 		|| ft_isdigit(valid->file[valid->line_num][valid->i]) || valid->file[valid->line_num][valid->i] == DIRECT_CHAR)
 	{
-		ft_handle_indirect(valid->file[valid->line_num] + valid->i, valid);
-		error_description = "INDIRECT";
+		printf("CURRENT ERROR TO BE HANDLED:%s\n", valid->file[valid->line_num] + valid->i);
+		error_description = (valid->file[valid->line_num][valid->i] == DIRECT_CHAR) ? "DIRECT" : "INDIRECT";
+		ft_handle_indirect(valid->file[valid->line_num], valid);
+		
 	}
 	else if (valid->file[valid->line_num][valid->i] == SEPARATOR_CHAR)
 	{
@@ -175,24 +177,24 @@ char 		*ft_syn_handle_dot(char *str, t_valid *valid)
 	return (str);
 }
 
-int			ft_find_operations(t_valid *valid)
-{
-	size_t		i;
-	size_t		j;
+// int			ft_find_operations(t_valid *valid)
+// {
+// 	size_t		i;
+// 	size_t		j;
 
-	i = valid->line_num;
-	while (valid->file[i])
-	{
-		j = 0;
-		while (valid->file[i][j])
-		{
-			if ((ft_is_command(valid->file[i] + j, valid) != -1))
-				return (1);
-		}
-		i++;
-	}
-	return (0);
-}
+// 	i = valid->line_num;
+// 	while (valid->file[i])
+// 	{
+// 		j = 0;
+// 		while (valid->file[i][j])
+// 		{
+// 			if ((ft_is_command(valid->file[i] + j, valid) != -1))
+// 				return (1);
+// 		}
+// 		i++;
+// 	}
+// 	return (0);
+// }
 
 size_t		ft_syn_handle_register(t_valid *valid)
 {
@@ -348,7 +350,7 @@ void		ft_syn_handle_label(t_valid *valid)
 	while (valid->file[valid->line_num][valid->i])
 	{
 		printf("MOVING ALONG!%c\n", valid->file[valid->line_num][valid->i]);
-		if ((cmd_num = ft_is_command(valid->file[valid->line_num] + valid->i, valid)) != -1)
+		if ((cmd_num = ft_is_command(valid->file[valid->line_num]/* + valid->i*/, valid)) != -1)
 		{
 			printf("IT IS REALLY A CMD?!%zu\n", valid->i);
 			valid->i += ft_strlen(op_tab[cmd_num].command_name);
@@ -393,6 +395,7 @@ size_t		ft_is_label(t_valid *valid)
 	{
 		valid->flag = 0; // if there any commands or labels will depend on the predefined bonus flag: -s
 		valid->i++;
+		printf("##############################\n");
 		return (1);
 	}
 	else
@@ -429,8 +432,9 @@ void		ft_check_main_body(t_valid *valid)
 				}
 				printf("Alah akbar!\n");
 			}
-			else if (((cmd_num = ft_is_command(valid->file[valid->line_num] + valid->i, valid)) != -1) && GEN_INFO)
+			else if (((cmd_num = ft_is_command(valid->file[valid->line_num]/* + valid->i*/, valid)) != -1) && GEN_INFO)
 			{
+				printf("IT SGOULD BE COMMAND IF SO!\n");
 				valid->i += ft_strlen(op_tab[cmd_num].command_name);
 				ft_handle_instr_invoke(valid->file[valid->line_num], valid);
 				printf("I AM HERE OR UP THERE!%zu|%zu\n", valid->i, ft_strlen(valid->file[valid->line_num]));
