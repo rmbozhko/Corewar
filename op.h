@@ -67,25 +67,25 @@ typedef char t_arg_type;
 # define COMMENT_LENGTH 2048 /*(2048)*/
 # define COREWAR_EXEC_MAGIC 0xea83f3
 
-typedef struct 		header_s
+typedef struct      header_s
 {
-    unsigned int	magic;
-    char 			prog_name[PROG_NAME_LENGTH + 1];
-    unsigned int 	prog_size;
-    char 			comment[COMMENT_LENGTH + 1];
-}					header_t;
+    unsigned int    magic;
+    char            prog_name[PROG_NAME_LENGTH + 1];
+    unsigned int    prog_size;
+    char            comment[COMMENT_LENGTH + 1];
+}                   header_t;
 
 typedef struct s_op
 {
-    char	*command_name;
-    int		count_args;
-    int		args[3][3];
-    int		opcode;
-    int		cycles;
-    char	*description;
-    int		carry;
-    int		cod_octal;
-}				t_op;
+    char    *command_name;
+    int     count_args;
+    int     args[3][3];
+    int     opcode;
+    int     cycles;
+    char    *description;
+    int     carry;
+    int     cod_octal;
+}               t_op;
 
 extern t_op op_tab[17];
 

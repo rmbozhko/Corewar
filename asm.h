@@ -30,6 +30,12 @@ typedef		struct s_operations
 	struct s_operations		*next;
 }				   t_operations;
 
+typedef		struct s_assembler
+{
+	char 	*name;
+	char 	*cmmt;
+}					t_assembler;
+
 typedef		struct 	s_valid
 {
 	char		**file;
@@ -52,8 +58,12 @@ int					ft_is_command(char *str, t_valid *valid);
 size_t				ft_handle_indirect(char *str, t_valid *valid);
 int 				ft_space_based_line(char *str);
 char 				*ft_handle_double_qoutes(t_valid *valid);
+size_t				ft_is_label(t_valid *valid);
 void				ft_handle_repeating_error(char *str, char *temp, t_valid *valid, int flag);
 void				ft_syntax_error(t_valid *valid, char *error_description, int flag);
 size_t				ft_syn_handle_register(t_valid *valid);
+void				ft_logical_validation(t_valid *valid, t_assembler *asml);
+void				ft_logical_error(size_t i, size_t arg_type, int cmd_opcode, int flag);
+int					skip_whitespaces(char *str, int i);
 
 #endif

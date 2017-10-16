@@ -69,8 +69,11 @@ void		ft_handle_null_err_description(t_valid *valid, int flag)
 		ft_handle_indirect(valid->file[valid->line_num] + valid->i, valid);
 		error_description = "INDIRECT";
 	}
-	else 
-		
+	else if (valid->file[valid->line_num][valid->i] == SEPARATOR_CHAR)
+	{
+		valid->i++;
+		error_description = "SEPARATOR";
+	}
 	printf("COUNTER AFTER %zu\n", valid->i);
 	temp = ft_strsub(valid->file[valid->line_num], i, valid->i - i);
 	j = valid->i;
@@ -127,7 +130,6 @@ void		ft_handle_repeating_error(char *str, char *temp, t_valid *valid, int flag)
 size_t		ft_is_gen_info_repeating(char *str, t_valid *valid)
 {
 	char 	*temp;
-	
 
 	temp = ft_strsub(str, 0, ft_strlen((ft_strstr(str, NAME_CMD_STRING)) ? NAME_CMD_STRING : COMMENT_CMD_STRING));
 	if (ft_strcmp(temp, NAME_CMD_STRING) == 0)
@@ -466,5 +468,10 @@ void 		ft_syntax_validation(t_valid* valid)
 	ft_check_main_body(valid);
 	printf("JUST AFTER!!\n");
 	(valid->flag) ? ft_syntax_error(valid, "END \"(null)\"", 1) : 0;
+	if (!ft_space_based_line(valid->file[ft_bidlen(valid->file) - 1]))
+	{
+		valid->errors++;
+		ft_putstr("Syntax error - unexpected end of input (Perhaps you forgot to end with a newline ?)\n");
+	}
 	printf("LET'S ROCK BITCHY!!!!!!!!!!!_+_+_+_+_+_+_+_+_+_+_+_+_");
 }

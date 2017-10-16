@@ -1,7 +1,7 @@
 NAME = valid
 CC = gcc
 
-SRC = asm.c get_next_line.c lexical_validation.c syntax_validation.c asm_errors.c
+SRC = asm.c get_next_line.c lexical_validation.c syntax_validation.c asm_errors.c logical_validation.c
 
 OBJ = $(SRC:.c=.o)
 CFLAGS = -c 

@@ -25,7 +25,8 @@ t_op    op_tab[17] =
 
 int			ft_validate(const int fd)
 {
-	t_valid		valid;
+	t_valid			valid;
+	t_assembler 	asml;
 
 	// valid = (t_valid*)malloc(sizeof(t_valid*));
 	valid.line_num = 0;
@@ -40,7 +41,7 @@ int			ft_validate(const int fd)
 	(valid.errors == 0) ? ft_syntax_validation(&valid) : 0;
 	printf("Number of erros after syn_valid:%d\n", valid.errors);
 	valid.line_num = 0;
-	(valid.errors == 0) ? printf("Logical: 1\n")/*Logical validation*/ : 0;
+	(valid.errors == 0) ? ft_logical_validation(&valid, &asml) : 0;
 	return ((valid.errors == 0) ? (1) : (0));
 }
 
@@ -58,6 +59,6 @@ int			main(int argc, char const *argv[])
 		}
 	}
 	else
-		//ft_putstr("Usage: ./asm [-a] <sourcefile.s>\n\t-a : Instead of creating a .cor file, outputs a stripped and annotated version of code to standard output\n");
+		ft_putstr("Usage: ./asm [-a] <sourcefile.s>\n\t-a : Instead of creating a .cor file, outputs a stripped and annotated version of code to standard output\n");
 	return (0);
 }
