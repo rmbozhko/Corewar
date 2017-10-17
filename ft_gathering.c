@@ -170,7 +170,7 @@ void		ft_print_links(t_labels		**arg)
 	t_labels		*link;
 
 	link = *arg;
-	printf("%s\n", link->name);
+	// printf("%s\n", link->name);
 	// while (link)
 	// {
 	// 	ft_putstr(link->name);
