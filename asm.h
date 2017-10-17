@@ -5,6 +5,7 @@
 # include "libft/libft.h"
 # include <fcntl.h>
 
+# define ARG_MAX_NUM 3
 # define BUFF_SIZE 1
 # define NL_CODE ft_strchr(temp, '\n')
 # define S_C_SUB (NL_CODE - temp)
@@ -19,21 +20,32 @@ int				get_next_line(const int fd, char **line, char *str);
 typedef		struct 	s_arg
 {
 	size_t			type;
-	char			*arg;
+	/*intmax_t*/char		*value;
+	char			*label;
 }				   	t_arg;
 
 typedef		struct s_operations
 {
 	char 					*command;
-	char 					*method;
-	t_arg					args[3];
+	// char 					*method;
+	t_arg					args[ARG_MAX_NUM];
 	struct s_operations		*next;
 }				   t_operations;
 
+typedef		struct 	s_labels
+{
+	char 					*name;
+	size_t					f_key;
+	struct s_labels			*next;
+}					t_labels;
+
 typedef		struct s_assembler
 {
-	char 	*name;
-	char 	*cmmt;
+	char 			*name;
+	char 			*cmmt;
+	t_labels		**label;
+	t_operations	**oper;
+	size_t			instr_counter;
 }					t_assembler;
 
 typedef		struct 	s_valid
@@ -65,5 +77,7 @@ size_t				ft_syn_handle_register(t_valid *valid);
 void				ft_logical_validation(t_valid *valid, t_assembler *asml);
 void				ft_logical_error(size_t i, size_t arg_type, int cmd_opcode, int flag);
 int					skip_whitespaces(char *str, int i);
+void				ft_gather_commands(t_valid *valid, t_assembler *asml);
+size_t				ft_get_arg_type(char *str);
 
 #endif

@@ -35,6 +35,10 @@ int			ft_validate(const int fd)
 	valid.cmmt = 0;
 	valid.flag = 1;
 	valid.file = ft_read_file(fd);
+	asml.label = (t_labels**)malloc(sizeof(t_labels**));
+	asml.instr_counter = 0;
+	asml.oper = (t_operations**)malloc(sizeof(t_operations**));
+	// asml.labels->next = NULL;
 	ft_lexical_validation(&valid);
 	valid.line_num = 0;
 	// printf("Number of erros after lex_valid:%d\n", valid.errors);
@@ -42,6 +46,9 @@ int			ft_validate(const int fd)
 	// printf("Number of erros after syn_valid:%d\n", valid.errors);
 	valid.line_num = 0;
 	(valid.errors == 0) ? ft_logical_validation(&valid, &asml) : 0;
+	valid.line_num = 0;
+	(valid.errors == 0) ? ft_gather_commands(&valid, &asml) : 0;
+	printf("INSTRUCTION COUnter:%zu\n", asml.instr_counter);
 	return ((valid.errors == 0) ? (1) : (0));
 }
 
