@@ -37,9 +37,9 @@ int			ft_validate(const int fd)
 	valid.file = ft_read_file(fd);
 	ft_lexical_validation(&valid);
 	valid.line_num = 0;
-	printf("Number of erros after lex_valid:%d\n", valid.errors);
+	// printf("Number of erros after lex_valid:%d\n", valid.errors);
 	(valid.errors == 0) ? ft_syntax_validation(&valid) : 0;
-	printf("Number of erros after syn_valid:%d\n", valid.errors);
+	// printf("Number of erros after syn_valid:%d\n", valid.errors);
 	valid.line_num = 0;
 	(valid.errors == 0) ? ft_logical_validation(&valid, &asml) : 0;
 	return ((valid.errors == 0) ? (1) : (0));
