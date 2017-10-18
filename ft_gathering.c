@@ -69,11 +69,19 @@ t_operations	*ft_create_command(char *str, char *arguments)
 	oper = (t_operations*)malloc(sizeof(t_operations*));
 	oper->command = str;
 	args = ft_strsplit(arguments, SEPARATOR_CHAR);
-	while (i < ARG_MAX_NUM && args[i])
+	while (i < ARG_MAX_NUM /*&& args[i]*/)
 	{
-		temp = ft_strip(args[i]);
-		oper->args[i] = *(ft_create_arg(temp));
-		ft_memdel((void**)&temp);
+		if (i > ft_bidlen(args))
+		{
+			oper->args[i] = (t_arg*)malloc(sizeof(t_arg*));
+			oper->args[i] = NULL;
+		}
+		else
+		{
+			temp = ft_strip(args[i]);
+			oper->args[i] = *(ft_create_arg(temp));
+			ft_memdel((void**)&temp);
+		}
 		i++;
 	}
 	oper->next = NULL;
