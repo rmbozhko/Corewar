@@ -6,7 +6,7 @@
 /*   By: rbozhko <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/28 16:53:46 by rbozhko           #+#    #+#             */
-/*   Updated: 2017/08/16 14:39:11 by rbozhko          ###   ########.fr       */
+/*   Updated: 2017/10/29 21:37:46 by rbozhko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ typedef	struct	s_list
 	struct s_list	*next;
 }				t_list;
 
+char			*ft_reverse_str(char *str);
+int				ft_skip_whitespaces(char *str, int i);
 void			*ft_memset(void *b, int c, size_t len);
 void			ft_bzero(void *s, size_t n);
 void			*ft_memcpy(void *str1, const void *str2, size_t n);
@@ -97,8 +99,8 @@ int				ft_bid_findstr(char *room, char **temp);
 char			**ft_create_bid_arr(size_t size, char *str);
 size_t			ft_count_char(char *str, char c);
 void			ft_free_bidarr(char **arr, size_t len);
-char 			*ft_lstrip(char *str);
+char			*ft_lstrip(char *str);
 char			*ft_rstrip(char *str);
-char 			*ft_strip(char *str);
-char 			**ft_read_file(const int fd);
+char			*ft_strip(char *str);
+char			**ft_read_file(const int fd, char **arr);
 #endif

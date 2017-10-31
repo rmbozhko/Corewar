@@ -6,7 +6,7 @@
 /*   By: rbozhko <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/29 12:26:34 by rbozhko           #+#    #+#             */
-/*   Updated: 2016/12/03 15:19:35 by rbozhko          ###   ########.fr       */
+/*   Updated: 2017/10/29 21:38:10 by rbozhko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@ char	*ft_strchr(const char *str, int c)
 				return ((char*)(str + i));
 			i++;
 		}
-		// if (str[i] == '\0' && (char)c == '\0')
-		// 	return (((char*)str) + i);
 	}
 	return (NULL);
 }

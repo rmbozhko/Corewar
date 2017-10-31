@@ -6,7 +6,7 @@
 /*   By: rbozhko <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/07/31 11:32:56 by rbozhko           #+#    #+#             */
-/*   Updated: 2017/07/31 11:34:22 by rbozhko          ###   ########.fr       */
+/*   Updated: 2017/10/29 21:37:11 by rbozhko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,14 +30,8 @@ int			ft_is_numeric(char *str)
 			return (0);
 		i++;
 	}
-	// if ((sign == 1 && i > 1) || (i > 0 && sign == 0))
-		// return (1);
-	// else
-		// return (0);
 	if (sign == 1)
-	{
 		return ((i > 1) ? 1 : 0);
-	}
 	else
 		return ((i > 0) ? 1 : 0);
 }

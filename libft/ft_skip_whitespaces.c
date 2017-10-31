@@ -1,27 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_free_bidarr.c                                   :+:      :+:    :+:   */
+/*   ft_skip_whitespaces.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rbozhko <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/08/16 14:38:51 by rbozhko           #+#    #+#             */
-/*   Updated: 2017/08/16 14:38:54 by rbozhko          ###   ########.fr       */
+/*   Created: 2017/10/29 20:06:04 by rbozhko           #+#    #+#             */
+/*   Updated: 2017/10/29 20:07:08 by rbozhko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void				ft_free_bidarr(char **arr, size_t len)
+int		ft_skip_whitespaces(char *str, int i)
 {
-	size_t		i;
-
-	i = 0;
-	while (i < len)
+	while (str[i] && (str[i] == ' ' || str[i] == '\t'))
 	{
-		ft_strdel(&arr[i]);
 		i++;
 	}
-	free(arr);
-	arr = NULL;
+	return (i);
 }

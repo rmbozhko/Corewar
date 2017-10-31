@@ -1,27 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_free_bidarr.c                                   :+:      :+:    :+:   */
+/*   ft_reverse_str.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rbozhko <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/08/16 14:38:51 by rbozhko           #+#    #+#             */
-/*   Updated: 2017/08/16 14:38:54 by rbozhko          ###   ########.fr       */
+/*   Created: 2017/10/31 16:29:50 by rbozhko           #+#    #+#             */
+/*   Updated: 2017/10/31 16:29:51 by rbozhko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void				ft_free_bidarr(char **arr, size_t len)
+char			*ft_reverse_str(char *str)
 {
+	char		*temp;
 	size_t		i;
+	size_t		j;
 
 	i = 0;
-	while (i < len)
+	j = ft_strlen(str) - 1;
+	temp = (char*)malloc(sizeof(char) * j + 1);
+	while (str[j])
 	{
-		ft_strdel(&arr[i]);
+		temp[i] = str[j];
+		j--;
 		i++;
 	}
-	free(arr);
-	arr = NULL;
+	temp[i] = '\0';
+	return (temp);
 }

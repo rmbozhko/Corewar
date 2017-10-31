@@ -1,71 +1,125 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   asm.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rbozhko <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2017/10/29 17:43:27 by rbozhko           #+#    #+#             */
+/*   Updated: 2017/10/31 19:29:45 by rbozhko          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "op.h"
 #include "asm.h"
 
-
-t_op    op_tab[17] =
+static void				ft_display_err_amount(size_t lvl, t_valid *valid)
 {
-	{"live", 1, {T_DIR}, 1, 10, "alive", 0, 0},
-	{"ld", 2, {T_DIR | T_IND, T_REG}, 2, 5, "load", 1, 0},
-	{"st", 2, {T_REG, T_IND | T_REG}, 3, 5, "store", 1, 0},
-	{"add", 3, {T_REG, T_REG, T_REG}, 4, 10, "addition", 1, 0},
-	{"sub", 3, {T_REG, T_REG, T_REG}, 5, 10, "soustraction", 1, 0},
-	{"and", 3, {T_REG | T_DIR | T_IND, T_REG | T_IND | T_DIR, T_REG}, 6, 6, "et (and  r1, r2, r3   r1&r2 -> r3", 1, 0},
-	{"or", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 7, 6, "ou  (or   r1, r2, r3   r1 | r2 -> r3", 1, 0},
-	{"xor", 3, {T_REG | T_IND | T_DIR, T_REG | T_IND | T_DIR, T_REG}, 8, 6, "ou (xor  r1, r2, r3   r1^r2 -> r3", 1, 0},
-	{"zjmp", 1, {T_DIR}, 9, 20, "jump if zero", 0, 1},
-	{"ldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 10, 25, "load index", 1, 1},
-	{"sti", 3, {T_REG, T_REG | T_DIR | T_IND, T_DIR | T_REG}, 11, 25, "store index", 1, 1},
-	{"fork", 1, {T_DIR}, 12, 800, "fork", 0, 1},
-	{"lld", 2, {T_DIR | T_IND, T_REG}, 13, 10, "long load", 1, 0},
-	{"lldi", 3, {T_REG | T_DIR | T_IND, T_DIR | T_REG, T_REG}, 14, 50, "long load index", 1, 1},
-	{"lfork", 1, {T_DIR}, 15, 1000, "long fork", 0, 1},
-	{"aff", 1, {T_REG}, 16, 2, "aff", 1, 0},
-	{0, 0, {0}, 0, 0, 0, 0, 0}
-};
+	static	size_t		flag = 1;
 
-int			ft_validate(const int fd)
-{
-	t_valid			valid;
-	t_assembler 	asml;
-
-	// valid = (t_valid*)malloc(sizeof(t_valid*));
-	valid.line_num = 0;
-	valid.errors = 0;
-	valid.name = 0;
-	valid.cmmt = 0;
-	valid.flag = 1;
-	valid.file = ft_read_file(fd);
-	asml.label = (t_labels**)malloc(sizeof(t_labels**));
-	asml.instr_counter = 0;
-	asml.oper = (t_operations**)malloc(sizeof(t_operations**));
-	// asml.labels->next = NULL;
-	ft_lexical_validation(&valid);
-	valid.line_num = 0;
-	// printf("Number of erros after lex_valid:%d\n", valid.errors);
-	(valid.errors == 0) ? ft_syntax_validation(&valid) : 0;
-	// printf("Number of erros after syn_valid:%d\n", valid.errors);
-	valid.line_num = 0;
-	(valid.errors == 0) ? ft_logical_validation(&valid, &asml) : 0;
-	valid.line_num = 0;
-	(valid.errors == 0) ? ft_gather_commands(&valid, &asml) : 0;
-	printf("INSTRUCTION COUnter:%zu\n", asml.instr_counter);
-	return ((valid.errors == 0) ? (1) : (0));
+	if (valid->errors - 1 > 0 && flag)
+	{
+		ft_putstr("Amount of errors on ");
+		if (lvl == 0)
+			ft_putstr("lexical");
+		else if (lvl == 1)
+			ft_putstr("syntax");
+		else if (lvl == 2)
+			ft_putstr("logical");
+		ft_putstr(" level: ");
+		ft_putnbr(valid->errors - 1);
+		ft_putendl(".");
+		flag = 0;
+	}
+	valid->l_num = 0;
+	valid->i = 0;
 }
 
-int			main(int argc, char const *argv[])
+int						ft_validate(const int fd, char *file)
 {
-	int		fd;
+	t_valid					valid;
+	size_t					i;
+	t_ft_valid_layers		*layers_keeper;
 
-	if (argc == 2)
+	if (fd >= 0 && fd <= 4096)
 	{
-		if (ft_strlen(argv[1]) > 0)
+		i = 0;
+		layers_keeper = NULL;
+		ft_init(fd, &valid);
+		layers_keeper = ft_init_layers();
+		while (i < VALIDATION_LAYERS_AMOUNT)
 		{
-			fd = open(argv[1], O_RDONLY);
-			(fd >= 0 && fd <= 4096) ? ft_validate(fd) : /*Handle case as an error*/0;
-			// while (1);
+			(valid.errors == 0) ? layers_keeper[i](&valid) : 0;
+			ft_display_err_amount(i, &valid);
+			i++;
 		}
+		ft_free_bidarr(valid.file, ft_bidlen(valid.file));
+		free(layers_keeper);
 	}
 	else
-		ft_putstr("Usage: ./asm [-a] <sourcefile.s>\n\t-a : Instead of creating a .cor file, outputs a stripped and annotated version of code to standard output\n");
-	return (0);
+	{
+		ft_putstr("Can't read source file ");
+		ft_exception(file, 2);
+	}
+	return ((valid.errors == 0 && (fd >= 0 && fd <= 4096)) ? 1 : 0);
+}
+
+bool					ft_validate_input_file(char *file_name)
+{
+	if (file_name != NULL && ft_strlen(file_name))
+	{
+		if (!ft_strcmp(file_name + (ft_strlen(file_name) - 2), ".s"))
+			return (true);
+	}
+	return (false);
+}
+
+bool					ft_write_to_stdout(char **arr)
+{
+	size_t		i;
+	char		*str;
+
+	str = ft_strnew(0);
+	i = 0;
+	while (arr[i])
+	{
+		ft_strdel(&str);
+		str = ft_strip(arr[i]);
+		if (!ft_strcmp(str, DUMP_FLAG))
+		{
+			return (false);
+		}
+		i++;
+	}
+	ft_strdel(&str);
+	return (true);
+}
+
+int						main(int argc, char const *argv[])
+{
+	int			fd;
+
+	if (argc > 1)
+	{
+		if (ft_validate_input_file((char*)argv[argc - 1]))
+		{
+			fd = open(argv[argc - 1], O_RDONLY);
+			if (ft_validate(fd, (char*)argv[argc - 1]))
+			{
+				g_asm.prog_size = ft_count_prog_len();
+				(!ft_write_to_stdout((char**)argv + 1)) ? ft_dump_info()
+				: ft_write_file((char*)argv[argc - 1], g_asm.oper, NULL);
+				return (0);
+			}
+		}
+		else
+			ft_exception("Wrong file extension.", 2);
+	}
+	else
+	{
+		ft_putendl("Usage: ./asm <sourcefile.s>");
+		ft_exception("\t-a : Instead of creating a .cor file, outputs a \
+		stripped and annotated version of the code to the standard output", 2);
+	}
+	return (1);
 }
